@@ -16,6 +16,12 @@ class ADFSOAuth2Provider(OAuth2Provider):
     def name(self):
         return self.get_settings().get("name", "ADFS Oauth2")
     
+    def get_auth_params(self, request, action):
+        params = super(ADFSOAuth2Provider, self).get_auth_params(request, action)
+        if "resource" not in params:
+            raise ImproperlyConfigured("'resource' must be supplied as a key of the AUTH_PARAMS dict under adfs_oauth2 in the SOCIALACCOUNT_PROVIDERS setting.")
+        return params
+    
     def extract_uid(self, data):
         return self.get_settings().get("extract_uid_handler", default_extract_uid_handler)(data)
 
