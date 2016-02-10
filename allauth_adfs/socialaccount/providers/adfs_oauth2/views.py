@@ -2,6 +2,7 @@ from allauth.socialaccount.providers.oauth2.views import (OAuth2Adapter,
                                                           OAuth2LoginView,
                                                           OAuth2CallbackView)
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.six import string_types
 from .provider import ADFSOAuth2Provider
 from urlparse import urlunsplit
 from .utils import decode_payload_segment, parse_token_payload_segment
@@ -30,6 +31,15 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
         value = self.get_provider().get_settings().get(key, default)
         if not value and required:
             raise ImproperlyConfigured("ADFS OAuth2 provider setting '%s' is required.  It must not be falsey." % key)
+        return value
+    
+    @property
+    def redirect_uri_protocol(self):
+        value = self.get_setting("redirect_uri_protocol", None)
+        if isinstance(value, string_types):
+            value = value.lower()
+        if value not in ("http", "https", None):
+            raise ImproperlyConfigured("ADFS OAuth2 provider setting 'redirect_uri_protocol' must be one of 'http', 'https', or None. You supplied '%s'." % value)
         return value
     
     @property
