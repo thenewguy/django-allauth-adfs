@@ -13,3 +13,9 @@ django-allauth-adfs
 
 .. image:: https://badge.fury.io/py/django-allauth-adfs.svg
     :target: http://badge.fury.io/py/django-allauth-adfs
+
+============
+installation
+============
+
+pip install django-allauth-adfs django-allauth-adfs[jwt] django-allauth-adfs[pki]
