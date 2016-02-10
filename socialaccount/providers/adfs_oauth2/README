@@ -1,0 +1,21 @@
+If you want to verify the jwt returned by ADFS (STRONGLY RECOMMENDED) you must install the following:
+```
+pip install PyJWT
+pip install cryptography
+```
+
+If you use a private PKI for the ADFS server, you will need to perform the following steps to trust the CA until https://github.com/certifi/python-certifi/issues/22 is resolved:
+```
+pip install certifi
+
+python -m certifi "where()"
+
+cat /path/to/trusted.pem >> /path/to/site-packages/certifi/cacert.pem
+```
+
+
+If you are using Python 2.x, you will need to install the following packages to communicate with ADFS using certificates from your internal certificate authority:
+```
+pip install pyopenssl
+pip install ndg-httpsclient
+```
