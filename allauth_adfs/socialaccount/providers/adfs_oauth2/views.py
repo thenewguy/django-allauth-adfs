@@ -68,7 +68,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
         if response.status_code == 200:
             data = response.content
         else:
-            raise RuntimeError("Could not retreive federation metadata")
+            raise RuntimeError("Could not retrieve federation metadata")
         
         xml = parseString(data)
         
