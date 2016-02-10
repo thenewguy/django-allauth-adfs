@@ -1,3 +1,6 @@
+from uuid import UUID
+from allauth.account.models import EmailAddress
+
 def decode_payload_segment(s):
     """
        reference:
@@ -22,3 +25,18 @@ def parse_token_payload_segment(t):
         raise ValueError('Not enough segments')
     
     return payload_segment
+
+def default_extract_uid_handler(data):
+    raw = data.get('ppid').decode("base64")
+    uid = UUID(bytes_le=raw)
+    return unicode(uid)
+
+def default_extract_common_fields_handler(data):
+    return dict(
+        username = data.get('upn').split("@")[0],
+        first_name = data.get('given_name'),
+        last_name = data.get('family_name'),
+    )
+
+def default_extract_email_addresses_handler(data):
+    return [EmailAddress(email=data.get('upn'), verified=True, primary=True)]
