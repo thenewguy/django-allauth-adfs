@@ -57,6 +57,10 @@ class RunTestsCommand(SetuptoolsTestCommand):
         
         raise SystemExit(errno)
 
+pki_require = ["certifi"]
+if version_info < (3, 0):
+    pki_require = pki_require + ["pyopenssl", "ndg-httpsclient"]
+
 tests_require = ['coverage', 'beautifulsoup4', 'html5lib', 'coveralls']
 if version_info < (3, 3):
     tests_require = tests_require + ['mock', 'pbr<1.7.0']
@@ -68,6 +72,10 @@ setup(
     url = "https://github.com/thenewguy/django-allauth-adfs",
     cmdclass={'test': RunTestsCommand},
     packages=find_packages(),
+    extras_require={
+        "jwt": ["PyJWT", "cryptography"],
+        "pki": pki_require,
+    },
     install_requires=['django-allauth'],
     tests_require=tests_require,
     classifiers = [
