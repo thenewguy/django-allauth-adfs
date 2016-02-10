@@ -35,7 +35,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
     
     @property
     def redirect_uri_protocol(self):
-        value = self.get_setting("redirect_uri_protocol", None)
+        value = self.get_setting("redirect_uri_protocol", default=None, required=False)
         if isinstance(value, string_types):
             value = value.lower()
         if value not in ("http", "https", None):
