@@ -1,0 +1,28 @@
+build: false  # Not a C# project, build stuff at the test step instead.
+environment:
+  global:
+    PYTHON: C:/Python27
+  matrix:
+    - TOXENV: py27-django-17
+    - TOXENV: py27-django-18
+    - TOXENV: py27-django-19
+    - TOXENV: py27-django-master
+    - TOXENV: py33-django-17
+    - TOXENV: py33-django-18
+    - TOXENV: py34-django-17
+    - TOXENV: py34-django-18
+    - TOXENV: py34-django-19
+    - TOXENV: py34-django-master
+    - TOXENV: py35-django-19
+    - TOXENV: py35-django-master
+matrix:
+  allow_failures:
+    - TOXENV: py27-django-master
+    - TOXENV: py34-django-master
+    - TOXENV: py35-django-master
+install:
+  - SET PATH=%PYTHON%;%PYTHON%/Scripts;%PATH%
+  - pip install -U tox virtualenv
+test_script:
+  - tox
+
