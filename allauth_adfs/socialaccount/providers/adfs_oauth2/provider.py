@@ -9,7 +9,7 @@ class ADFSOAuth2Account(ProviderAccount):
 
 class ADFSOAuth2Provider(OAuth2Provider):
     id = 'adfs_oauth2'
-    package = 'allauth.socialaccount.providers.adfs_oauth2'
+    package = 'allauth_adfs.socialaccount.providers.adfs_oauth2'
     account_class = ADFSOAuth2Account
     
     @property

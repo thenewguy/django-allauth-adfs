@@ -79,7 +79,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
         cache_alias = self.get_setting("token_signature_key_cache_alias", DEFAULT_CACHE_ALIAS)
         cache = caches[cache_alias]
         cache_key = ":".join([
-            "allauth",
+            "allauth_adfs",
             "ADFSOAuth2Adapter",
             md5(self.federation_metadata_url).hexdigest(),
             "token_signature_key",
