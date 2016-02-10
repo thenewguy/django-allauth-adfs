@@ -18,4 +18,6 @@ django-allauth-adfs
 installation
 ============
 
+apt-get update && apt-get install -y libffi-dev libssl-dev
+
 pip install django-allauth-adfs django-allauth-adfs[jwt] django-allauth-adfs[pki]
