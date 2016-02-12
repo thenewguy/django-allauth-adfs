@@ -40,9 +40,7 @@ def default_extract_common_fields_handler(data):
         email = data.get('email', upn),
     )
     for key in ("is_staff", "is_superuser", "is_active"):
-        value = data.get(key, False)
-        if value in (True, False):
-            common_fields[key] = value
+        common_fields[key] = data.get(key) == "1"
     return common_fields
 
 def default_extract_email_addresses_handler(data):
