@@ -19,3 +19,38 @@ If you are using Python 2.x, you will need to install the following packages to 
 pip install pyopenssl
 pip install ndg-httpsclient
 ```
+
+
+claims used by default:
+
+=============================
+Send LDAP Attributes as Claim
+=============================
+
+Outgoing Claim Type: guid
+LDAP Attribute: objectGUID
+
+Outgoing Claim Type: UPN
+LDAP Attribute: User-Principal-Name
+
+Outgoing Claim Type: first_name
+LDAP Attribute: Given-Name
+
+Outgoing Claim Type: last_name
+LDAP Attribute: Surname
+
+Outgoing Claim Type: email
+LDAP Attribute: email address or defaults to upn if not provided
+
+==============================
+Send Group Membership as Claim
+==============================
+
+name: is_staff
+value: "1" or missing
+
+name: is_superuser
+value: "1" or missing
+
+name: is_active
+value: "1" or missing
