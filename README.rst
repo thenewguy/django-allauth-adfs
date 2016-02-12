@@ -25,3 +25,25 @@ pip install django-allauth-adfs django-allauth-adfs[jwt] django-allauth-adfs[pki
 if you want to enforce staff users to log in via adfs
 add allauth_adfs to installed apps and set
 SOCIALACCOUNT_ADAPTER = "allauth_adfs.socialaccount.adapter.SocialAccountAdapter"
+
+
+if you want the admin to use this auth then you do the following:
+AUTHENTICATION_BACKENDS = [
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+then somewhere in admin.py for an app
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import admin
+
+admin.autodiscover()
+
+# monkey patch admin login view to redirect to the site login view
+admin.site.login = login_required(
+    staff_member_required(admin.site.login, login_url="permission-denied-change-user")
+)
+
+the "permission-denied-change-user" view is just a view that presents a message via the messages framework
+to the user about why they are being redirected and then redirects to the sign out view.
