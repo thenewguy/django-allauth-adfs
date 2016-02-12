@@ -27,16 +27,28 @@ def parse_token_payload_segment(t):
     return payload_segment
 
 def default_extract_uid_handler(data):
-    raw = data.get('ppid').decode("base64")
+    raw = data['guid'].decode("base64")
     uid = UUID(bytes_le=raw)
     return unicode(uid)
 
 def default_extract_common_fields_handler(data):
-    return dict(
-        username = data.get('upn').split("@")[0],
-        first_name = data.get('given_name'),
-        last_name = data.get('family_name'),
+    upn = data['upn']
+    common_fields = dict(
+        username = upn.split("@")[0],
+        first_name = data.get('first_name'),
+        last_name = data.get('last_name'),
+        email = data.get('email', upn),
     )
+    for key in ("is_staff", "is_superuser", "is_active"):
+        value = data.get(key, False)
+        if value in (True, False):
+            common_fields[key] = value
+    return common_fields
 
 def default_extract_email_addresses_handler(data):
-    return [EmailAddress(email=data.get('upn'), verified=True, primary=True)]
+    addressess = []
+    common_fields = default_extract_common_fields_handler(data)
+    email = common_fields.get("email")
+    if email:
+        addressess.append(EmailAddress(email=email, verified=True, primary=True))
+    return addressess
