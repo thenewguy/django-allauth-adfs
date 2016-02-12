@@ -21,3 +21,7 @@ installation
 apt-get update && apt-get install -y libffi-dev libssl-dev
 
 pip install django-allauth-adfs django-allauth-adfs[jwt] django-allauth-adfs[pki]
+
+if you want to enforce staff users to log in via adfs
+add allauth_adfs to installed apps and set
+SOCIALACCOUNT_ADAPTER = "allauth_adfs.socialaccount.adapter.SocialAccountAdapter"
