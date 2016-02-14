@@ -54,3 +54,11 @@ value: "1" or missing
 
 name: is_active
 value: "1" or missing
+
+=====
+PowerShell to add oauth2 endpoint
+=====
+Add-ADFSClient -Name "Foo Client Pretty Name" -ClientId "foo-client-id" -RedirectUri "https://foo.bar.com/accounts/adfs_oauth2/login/callback/"
+
+** currently the code assumes client id and resource are not the same.  would it be simpler to assume they are and not require the resource config?
+
