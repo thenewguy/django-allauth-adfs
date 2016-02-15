@@ -9,16 +9,16 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         # new user logins are handled by populate_user
         if sociallogin.is_existing:
-            changed, user = self.update_user_fields(sociallogin)
+            changed, user = self.update_user_fields(request, sociallogin)
             if changed:
                 user.save()
 
     def populate_user(self, request, sociallogin, data):
         user = super(SocialAccountAdapter, self).populate_user(request, sociallogin, data)
-        self.update_user_fields(sociallogin, user)
+        self.update_user_fields(request, sociallogin, user)
         return user
     
-    def update_user_fields(self, sociallogin=None, user=None):
+    def update_user_fields(self, request, sociallogin=None, user=None):
         changed = False
         if user is None:
             user = sociallogin.account.user
@@ -29,8 +29,9 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         
         if sociallogin is not None and sociallogin.account.provider == ADFSOAuth2Provider.id:
             provider = registry.by_id(sociallogin.account.provider)
+            app = provider.get_app(request)
             data = sociallogin.account.extra_data
-            values = provider.extract_common_fields(data)
+            values = provider.extract_common_fields(data, app)
             for key in copy_keys:
                 # it is assumed that values are cleaned and set for all
                 # fields and if any of the boolean_keys are not provided
