@@ -1,5 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from allauth.socialaccount import providers
+from allauth.socialaccount.adapter import get_adapter
 from allauth.socialaccount.providers.base import ProviderAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
 from .utils import default_extract_extra_data_handler, default_extract_uid_handler, default_extract_common_fields_handler, default_extract_email_addresses_handler
