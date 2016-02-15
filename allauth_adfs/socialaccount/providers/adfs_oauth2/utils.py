@@ -26,12 +26,17 @@ def parse_token_payload_segment(t):
     
     return payload_segment
 
-def default_extract_uid_handler(data):
+def default_extract_uid_handler(data, app):
     raw = data['guid'].decode("base64")
     uid = UUID(bytes_le=raw)
     return unicode(uid)
 
-def default_extract_common_fields_handler(data):
+def per_social_app_extract_uid_handler(data, app):
+    raw = data['guid'].decode("base64")
+    uid = UUID(bytes_le=raw)
+    return "{};{}".format(app.id, uid)
+
+def default_extract_common_fields_handler(data, app):
     upn = data['upn']
     common_fields = dict(
         username = upn.split("@")[0],
@@ -43,10 +48,13 @@ def default_extract_common_fields_handler(data):
         common_fields[key] = data.get(key) == "1"
     return common_fields
 
-def default_extract_email_addresses_handler(data):
+def default_extract_email_addresses_handler(data, app):
     addressess = []
     common_fields = default_extract_common_fields_handler(data)
     email = common_fields.get("email")
     if email:
         addressess.append(EmailAddress(email=email, verified=True, primary=True))
     return addressess
+
+def default_extract_extra_data_handler(self, data, app):
+    return data
