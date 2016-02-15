@@ -26,6 +26,9 @@ if you want to enforce staff users to log in via adfs
 add allauth_adfs to installed apps and set
 SOCIALACCOUNT_ADAPTER = "allauth_adfs.socialaccount.adapter.SocialAccountAdapter"
 
+if you want to return different django user instances per SocialApp from the provider
+use utils.per_social_app_extract_uid_handler instead of the default_extract_uid_handler
+this can be useful for permissions handling in multi tenant configurations
 
 if you want the admin to use this auth then you do the following:
 AUTHENTICATION_BACKENDS = [
