@@ -56,5 +56,5 @@ def default_extract_email_addresses_handler(data, app):
         addressess.append(EmailAddress(email=email, verified=True, primary=True))
     return addressess
 
-def default_extract_extra_data_handler(self, data, app):
+def default_extract_extra_data_handler(data, app):
     return data
