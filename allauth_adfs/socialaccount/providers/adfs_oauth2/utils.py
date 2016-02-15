@@ -50,7 +50,7 @@ def default_extract_common_fields_handler(data, app):
 
 def default_extract_email_addresses_handler(data, app):
     addressess = []
-    common_fields = default_extract_common_fields_handler(data)
+    common_fields = default_extract_common_fields_handler(data, app)
     email = common_fields.get("email")
     if email:
         addressess.append(EmailAddress(email=email, verified=True, primary=True))
