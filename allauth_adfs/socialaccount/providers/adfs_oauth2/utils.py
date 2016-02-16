@@ -54,9 +54,9 @@ def per_social_app_extract_common_fields_handler(data, app):
     common_fields = default_extract_common_fields_handler(data, app)
     uid_bytes = UUID(default_extract_uid_handler(data, app)).bytes
     uid_b64 = urlsafe_b64encode(uid_bytes)
-    aid_bytes = pack("H", app.id)# this assumes app id < 65,535
+    aid_bytes = pack("I", app.id-1)# I format is 0-4294967295
     aid_b64 = urlsafe_b64encode(aid_bytes)
-    username = "{}.{}".format(uid_b64, aid_b64).replace("=", "@")
+    username = "".join([uid_b64, aid_b64]).replace("=", "")# length of 28
     common_fields["username"] = username
     return common_fields
 
