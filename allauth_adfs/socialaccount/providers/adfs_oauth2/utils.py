@@ -1,4 +1,6 @@
 from uuid import UUID
+from struct import pack
+from base64 import urlsafe_b64encode
 from allauth.account.models import EmailAddress
 
 def decode_payload_segment(s):
@@ -46,6 +48,14 @@ def default_extract_common_fields_handler(data, app):
     )
     for key in ("is_staff", "is_superuser", "is_active"):
         common_fields[key] = data.get(key) == "1"
+    return common_fields
+
+def per_social_app_extract_common_fields_handler(data, app):
+    common_fields = default_extract_common_fields_handler(data, app)
+    uid_bytes = UUID(default_extract_uid_handler(data, app)).bytes
+    aid_bytes = pack("H", app.id)# this assumes app id < 65,535
+    username_b64 = urlsafe_b64encode(aid_bytes) + "." + urlsafe_b64encode(uid_bytes)
+    common_fields["username"] = username_b64.replace("=", "@")
     return common_fields
 
 def default_extract_email_addresses_handler(data, app):
