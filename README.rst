@@ -29,6 +29,8 @@ SOCIALACCOUNT_ADAPTER = "allauth_adfs.socialaccount.adapter.SocialAccountAdapter
 if you want to return different django user instances per SocialApp from the provider
 use utils.per_social_app_extract_uid_handler instead of the default_extract_uid_handler
 this can be useful for permissions handling in multi tenant configurations
+and utils.per_social_app_extract_common_fields_handler for the username to be based
+on app id. it uses base64 guid and app id.
 
 if you want the admin to use this auth then you do the following:
 AUTHENTICATION_BACKENDS = [
