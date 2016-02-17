@@ -1,8 +1,10 @@
 from allauth.account.signals import user_logged_in
+from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter, get_adapter
 from allauth.socialaccount.providers import registry
 from django.contrib import messages
 from django.dispatch import receiver
+from django.http import HttpResponseForbidden
 from .providers.adfs_oauth2.provider import ADFSOAuth2Provider
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
@@ -22,16 +24,16 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         changed = False
         if user is None:
             user = sociallogin.account.user
+        adfs_provider = registry.by_id(ADFSOAuth2Provider.id)
         
         false_keys = ["is_staff", "is_superuser"]
         boolean_keys = false_keys + ["is_active"]
         copy_keys = boolean_keys + ["first_name", "last_name", "email"]
         
         if sociallogin is not None and sociallogin.account.provider == ADFSOAuth2Provider.id:
-            provider = registry.by_id(sociallogin.account.provider)
-            app = provider.get_app(request)
+            app = adfs_provider.get_app(request)
             data = sociallogin.account.extra_data
-            values = provider.extract_common_fields(data, app)
+            values = adfs_provider.extract_common_fields(data, app)
             for key in copy_keys:
                 # it is assumed that values are cleaned and set for all
                 # fields and if any of the boolean_keys are not provided
@@ -43,7 +45,8 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         else:
             for key in false_keys:
                 if getattr(user, key):
-                    setattr(user, key, False)
-                    changed = True
+                    msg = "Staff users must authenticate via the %s provider!" % adfs_provider.name
+                    response = HttpResponseForbidden(msg)
+                    raise ImmediateHttpResponse(response)
         
         return changed, user
