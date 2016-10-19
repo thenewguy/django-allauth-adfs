@@ -107,3 +107,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    'adfs_oauth2': {
+        'name': 'ADFS Login',
+        'host': 'localhost',
+        'redirect_uri_protocol': 'http',
+        'time_validation_leeway': 30,  # allow for 30 seconds of clock drift
+        'verify_token': False,
+        'AUTH_PARAMS': {
+            'resource': 'adfs_oauth2_tests',
+        },
+    }
+}
