@@ -6,18 +6,21 @@ from sys import version_info
 class RunTestsCommand(SetuptoolsTestCommand):
     user_options = [
         ('only=', 'o', 'Only run the specified tests'),
-        ('level=', 'l', 'Verbosity level; 0=minimal output, 1=normal output, 2=verbose output, 3=very verbose output')
+        ('level=', 'l', 'Verbosity level; 0=minimal output, 1=normal output, 2=verbose output, 3=very verbose output'),
+        ('suppress-coverage-report', None, 'Suppress coverage report'),
     ]
     def initialize_options(self):
         SetuptoolsTestCommand.initialize_options(self)
         self.test_suite = "override"
         self.only = ""
         self.level = "1"
+        self.suppress_coverage_report = None
 
     def finalize_options(self):
         SetuptoolsTestCommand.finalize_options(self)
         self.test_suite = None
         self.level = int(self.level)
+        self.suppress_coverage_report = self.suppress_coverage_report is not None
 
     def run(self):
         SetuptoolsTestCommand.run(self)
@@ -37,7 +40,9 @@ class RunTestsCommand(SetuptoolsTestCommand):
         if not tests:
             tests.extend([nwd, os.path.abspath('test_project')])
         errno = coverage.cmdline.main(['run', os.path.abspath('test_project/manage.py'), 'test', '--verbosity=%d' % self.level] + tests)
-        coverage.cmdline.main(['report', '-m'])
+        
+        if not self.suppress_coverage_report:
+            coverage.cmdline.main(['report', '-m'])
         
         if None not in [os.getenv("TRAVIS", None), os.getenv("TRAVIS_JOB_ID", None), os.getenv("TRAVIS_BRANCH", None)]:
             env = os.environ.copy()
