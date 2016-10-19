@@ -24,6 +24,7 @@ sys.path.insert(1, os.path.abspath(os.path.join(BASE_DIR, "../")))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'not-so-secret'
+SITE_ID = 1
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
