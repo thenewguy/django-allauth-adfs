@@ -34,11 +34,7 @@ class ADFSTests(TestCase):
         jwt = self.get_dummy_jwt(claims)
         
         encoded_claims_json = parse_token_payload_segment(jwt)
-        expected_value = 'eyJVUE4iOiAiZm9vQGJhci5leGFtcGxlLmNvbSIsICJmaXJzdF9uYW1lIjogImphbmUiLCAiZ3Vp\nZCI6ICIyYnJwL2UwZVJFcVg3U3pFQTZKakpBPT0iLCAibGFzdF9uYW1lIjogImRvZSJ9'
-        self.assertEqual(encoded_claims_json, expected_value)
-        
         decoded_claims_json = decode_payload_segment(encoded_claims_json)
-        
         parsed_claims = json.loads(decoded_claims_json)
         
         self.assertEqual(claims["guid"], parsed_claims["guid"])
