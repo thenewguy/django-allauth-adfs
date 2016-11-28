@@ -13,9 +13,9 @@ class ADFSOAuth2Provider(OAuth2Provider):
     package = 'allauth_adfs.socialaccount.providers.adfs_oauth2'
     account_class = ADFSOAuth2Account
     
-    @property
-    def name(self):
-        return self.get_settings().get("name", "ADFS Oauth2")
+    def __init__(self, *args):
+        super(ADFSOAuth2Provider, self).__init__(*args)
+        self.name = self.get_settings().get("name", "ADFS Oauth2")
     
     def get_auth_params(self, request, action):
         params = super(ADFSOAuth2Provider, self).get_auth_params(request, action)
