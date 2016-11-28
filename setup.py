@@ -72,7 +72,7 @@ if version_info < (3, 3):
 
 setup(
     name = "django-allauth-adfs",
-    version = "0.0.1",
+    version = "0.0.2",
     author = "gordon",
     author_email = "wgordonw1@gmail.com",
     description = "ADFS oAuth provider for django-allauth",
@@ -83,7 +83,7 @@ setup(
         "jwt": ["PyJWT", "cryptography"],
         "pki": pki_require,
     },
-    install_requires=['django-allauth'],
+    install_requires=['django-allauth>=0.26.0'],
     tests_require=tests_require,
     classifiers = [
         'Programming Language :: Python',
