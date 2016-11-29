@@ -24,16 +24,15 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         changed = False
         if user is None:
             user = sociallogin.account.user
-        adfs_provider = registry.by_id(ADFSOAuth2Provider.id)
+        adfs_provider = registry.by_id(ADFSOAuth2Provider.id, request)
         
         false_keys = ["is_staff", "is_superuser"]
         boolean_keys = false_keys + ["is_active"]
         copy_keys = boolean_keys + ["first_name", "last_name", "email"]
         
         if sociallogin is not None and sociallogin.account.provider == ADFSOAuth2Provider.id:
-            app = adfs_provider.get_app(request)
             data = sociallogin.account.extra_data
-            values = adfs_provider.extract_common_fields(data, app)
+            values = adfs_provider.extract_common_fields(data)
             for key in copy_keys:
                 # it is assumed that values are cleaned and set for all
                 # fields and if any of the boolean_keys are not provided
