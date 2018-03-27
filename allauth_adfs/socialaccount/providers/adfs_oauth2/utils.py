@@ -1,3 +1,5 @@
+from six import text_type
+from django.utils.encoding import force_bytes
 from uuid import UUID
 from struct import pack
 from base64 import urlsafe_b64encode
@@ -8,6 +10,9 @@ def decode_payload_segment(s):
        reference:
            https://github.com/jpadilla/pyjwt/blob/528318787eff3df062f2b55a5f79964aece74f18/jwt/utils.py#L12 
     """
+    if isinstance(s, text_type):
+        s = s.encode('ascii')
+    
     rem = len(s) % 4
 
     if rem > 0:
@@ -20,6 +25,7 @@ def parse_token_payload_segment(t):
         reference:
             https://github.com/jpadilla/pyjwt/blob/4f899c6764d57000eba0fc40721f9e1b5d94a77a/jwt/api_jws.py#L130
     """
+    t = force_bytes(t)
     try:
         signing_input, crypto_segment = t.rsplit(b'.', 1)
         header_segment, payload_segment = signing_input.split(b'.', 1)
