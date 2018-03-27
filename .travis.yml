@@ -6,7 +6,6 @@ addons:
     packages:
       - python3.5
 env:
-  - TOXENV=py27-django-18
   - TOXENV=py27-django-111
   - TOXENV=py34-django-111
   - TOXENV=py34-django-20
