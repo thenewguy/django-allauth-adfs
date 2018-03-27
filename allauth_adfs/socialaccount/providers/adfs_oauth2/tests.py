@@ -1,13 +1,22 @@
+import base64
 import json
+import six
 
 from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.tests import OAuth2TestsMixin
 from allauth.tests import MockedResponse, TestCase
-from allauth.utils import get_current_site
+from django.contrib.sites.models import Site
 
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment
+
+
+def encode(source):
+    if six.PY3:
+        source = source.encode('utf-8')
+    content = base64.b64encode(source).decode('utf-8')
+    return content.strip()
 
 
 class ADFSTests(TestCase):
@@ -21,7 +30,7 @@ class ADFSTests(TestCase):
                                        client_id='app123id',
                                        key=self.provider.id,
                                        secret='dummy')
-        app.sites.add(get_current_site())
+        app.sites.add(Site.objects.get_current())
     
     def test_unencrypted_token_payload(self):
         claims = {
@@ -52,9 +61,9 @@ class ADFSTests(TestCase):
         signature = ""
         
         # payload data
-        header_data = json.dumps(header).encode("base64").strip()
-        claims_data = json.dumps(claims).encode("base64").strip()
-        signature_data = signature.encode("base64").strip()
+        header_data = encode(json.dumps(header))
+        claims_data = encode(json.dumps(claims))
+        signature_data = encode(signature)
         payload = [header_data, claims_data, signature_data]
         
         return ".".join(payload)
