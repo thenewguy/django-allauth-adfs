@@ -4,7 +4,7 @@ from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.tests import OAuth2TestsMixin
 from allauth.tests import MockedResponse, TestCase
-from allauth.utils import get_current_site
+from django.contrib.sites.models import Site
 
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment
@@ -21,7 +21,7 @@ class ADFSTests(TestCase):
                                        client_id='app123id',
                                        key=self.provider.id,
                                        secret='dummy')
-        app.sites.add(get_current_site())
+        app.sites.add(Site.objects.get_current())
     
     def test_unencrypted_token_payload(self):
         claims = {
