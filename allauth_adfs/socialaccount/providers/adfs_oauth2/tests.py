@@ -1,3 +1,4 @@
+import base64
 import json
 
 from allauth.socialaccount import providers
@@ -8,6 +9,13 @@ from django.contrib.sites.models import Site
 
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment
+
+
+def encode(source):
+    if six.PY3:
+        source = source.encode('utf-8')
+    content = base64.b64encode(source).decode('utf-8')
+    return content.strip()
 
 
 class ADFSTests(TestCase):
@@ -52,9 +60,9 @@ class ADFSTests(TestCase):
         signature = ""
         
         # payload data
-        header_data = json.dumps(header).encode("base64").strip()
-        claims_data = json.dumps(claims).encode("base64").strip()
-        signature_data = signature.encode("base64").strip()
+        header_data = encode(json.dumps(header))
+        claims_data = encode(json.dumps(claims))
+        signature_data = encode(signature)
         payload = [header_data, claims_data, signature_data]
         
         return ".".join(payload)
