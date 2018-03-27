@@ -1,5 +1,5 @@
 from six import text_type
-from django.utils.encoding import force_bytes
+from django.utils.encoding import force_bytes, force_text
 from uuid import UUID
 from struct import pack
 from base64 import urlsafe_b64encode, urlsafe_b64decode
@@ -18,7 +18,7 @@ def decode_payload_segment(s):
     if rem > 0:
         s += b'=' * (4 - rem)
 
-    return urlsafe_b64decode(s)
+    return force_text(urlsafe_b64decode(s))
 
 def parse_token_payload_segment(t):
     """
