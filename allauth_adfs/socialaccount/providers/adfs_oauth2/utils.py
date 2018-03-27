@@ -2,7 +2,7 @@ from six import text_type
 from django.utils.encoding import force_bytes
 from uuid import UUID
 from struct import pack
-from base64 import urlsafe_b64encode
+from base64 import urlsafe_b64encode, urlsafe_b64decode
 from allauth.account.models import EmailAddress
 
 def decode_payload_segment(s):
@@ -18,7 +18,7 @@ def decode_payload_segment(s):
     if rem > 0:
         s += b'=' * (4 - rem)
 
-    return s.decode("base64")
+    return urlsafe_b64decode(s)
 
 def parse_token_payload_segment(t):
     """
@@ -35,12 +35,12 @@ def parse_token_payload_segment(t):
     return payload_segment
 
 def default_extract_uid_handler(data, app):
-    raw = data['guid'].decode("base64")
+    raw = urlsafe_b64decode(data['guid'])
     uid = UUID(bytes_le=raw)
     return unicode(uid)
 
 def per_social_app_extract_uid_handler(data, app):
-    raw = data['guid'].decode("base64")
+    raw = urlsafe_b64decode(data['guid'])
     uid = UUID(bytes_le=raw)
     return "{};{}".format(app.id, uid)
 
