@@ -83,7 +83,7 @@ setup(
         "jwt": ["PyJWT", "cryptography"],
         "pki": pki_require,
     },
-    install_requires=['django-allauth>=0.26.0'],
+    install_requires=['django-allauth>=0.26.0', 'six'],
     tests_require=tests_require,
     classifiers = [
         'Programming Language :: Python',

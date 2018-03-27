@@ -1,5 +1,6 @@
 import base64
 import json
+import six
 
 from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
