@@ -3,26 +3,21 @@ environment:
   global:
     PYTHON: C:/Python27
   matrix:
-    - TOXENV: py27-django-17
-    - TOXENV: py27-django-18
-    - TOXENV: py27-django-19
-    - TOXENV: py27-django-110
-    - TOXENV: py27-django-master
-    - TOXENV: py33-django-17
-    - TOXENV: py33-django-18
-    - TOXENV: py34-django-17
-    - TOXENV: py34-django-18
-    - TOXENV: py34-django-19
-    - TOXENV: py34-django-110
-    - TOXENV: py34-django-master
-    - TOXENV: py35-django-19
-    - TOXENV: py35-django-110
-    - TOXENV: py35-django-master
+    - TOXENV=py27-django-18
+    - TOXENV=py27-django-111
+    - TOXENV=py34-django-111
+    - TOXENV=py34-django-20
+    - TOXENV=py35-django-111
+    - TOXENV=py35-django-20
+    - TOXENV=py35-django-master
+    - TOXENV=py36-django-111
+    - TOXENV=py36-django-20
+    - TOXENV=py36-django-master
 matrix:
   allow_failures:
-    - TOXENV: py27-django-master
     - TOXENV: py34-django-master
     - TOXENV: py35-django-master
+    - TOXENV: py36-django-master
 install:
   - SET PATH=%PYTHON%;%PYTHON%/Scripts;%PATH%
   - pip install -U tox virtualenv
