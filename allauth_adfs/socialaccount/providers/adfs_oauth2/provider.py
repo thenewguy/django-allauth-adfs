@@ -36,4 +36,4 @@ class ADFSOAuth2Provider(OAuth2Provider):
         app = self.get_app(self.request)
         return self.get_settings().get("extract_email_addresses_handler", default_extract_email_addresses_handler)(data, app)
 
-providers.registry.register(ADFSOAuth2Provider)
+provider_classes = [ADFSOAuth2Provider]
