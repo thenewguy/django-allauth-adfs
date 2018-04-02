@@ -45,6 +45,8 @@ INSTALLED_APPS = (
     'allauth_adfs',
     'allauth_adfs.socialaccount.providers.adfs_oauth2',
     'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 )
 
 MIDDLEWARE = (

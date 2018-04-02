@@ -4,9 +4,12 @@ import six
 
 from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
+from allauth.socialaccount.templatetags.socialaccount import get_providers
 from allauth.socialaccount.tests import OAuth2TestsMixin
 from allauth.tests import MockedResponse, TestCase
 from django.contrib.sites.models import Site
+from django.template import RequestContext, Template
+from django.test.client import RequestFactory
 
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment
@@ -24,6 +27,7 @@ class ADFSTests(TestCase):
     
     def setUp(self):
         super(ADFSTests, self).setUp()
+        self.factory = RequestFactory()
         self.provider = providers.registry.by_id(self.provider_id)
         app = SocialApp.objects.create(provider=self.provider.id,
                                        name=self.provider.id,
@@ -31,6 +35,22 @@ class ADFSTests(TestCase):
                                        key=self.provider.id,
                                        secret='dummy')
         app.sites.add(Site.objects.get_current())
+    
+    def test_provider_login_url(self):
+        provider_ids = [p.id for p in get_providers()]
+        self.assertIn(self.provider_id, provider_ids)
+        
+        request = self.factory.get('/accounts/login/')
+        c = RequestContext(request, {
+            'provider': self.provider,
+        })
+        t = Template("""
+            {% load socialaccount %}
+            {% provider_login_url provider.id process=login %}
+        """)
+        content = t.render(c)
+        
+        self.assertEquals(content, "")
     
     def test_unencrypted_token_payload(self):
         claims = {
