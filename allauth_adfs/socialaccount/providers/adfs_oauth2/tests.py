@@ -25,6 +25,10 @@ def encode(source):
 class TestProviderUrls(TestCase):
     def test_urls_importable(self):
         from allauth_adfs.socialaccount.providers.adfs_oauth2 import urls
+    
+    def test_urls_populated(self):
+        from allauth_adfs.socialaccount.providers.adfs_oauth2 import urls
+        self.assertIsInstance(urls.urlpatterns, list)
         self.assertTrue(urls.urlpatterns)
         
     def test_login_url(self):
