@@ -7,9 +7,11 @@ from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.templatetags.socialaccount import get_providers
 from allauth.socialaccount.tests import OAuth2TestsMixin
 from allauth.tests import MockedResponse, TestCase
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.template import RequestContext, Template
 from django.test.client import RequestFactory
+from django.urls import reverse
 
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment
@@ -117,3 +119,11 @@ class ADFSTests(TestCase):
         payload = [header_data, claims_data, signature_data]
         
         return ".".join(payload)
+
+    def test_authentication_error(self):
+        resp = self.client.get(reverse(self.provider.id + '_callback'))
+        ACCOUNT_TEMPLATE_EXTENSION = getattr(settings, 'ACCOUNT_TEMPLATE_EXTENSION', 'html')
+        self.assertTemplateUsed(
+            resp,
+            'socialaccount/authentication_error.%s' % ACCOUNT_TEMPLATE_EXTENSION,
+        )
