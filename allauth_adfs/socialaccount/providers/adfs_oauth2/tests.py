@@ -32,6 +32,31 @@ class TestProvidersRegistryFindsUs(TestCase):
         self.assertIn(ADFSOAuth2Provider.id, registry.provider_map)
         provider = registry.by_id(ADFSOAuth2Provider.id)
         self.assertIsInstance(provider, ADFSOAuth2Provider)
+    
+    def test_login_url(self):
+        registry = providers.ProviderRegistry()
+        registry.load()
+        provider = registry.by_id(ADFSOAuth2Provider.id)
+        login_url = provider.get_login_url(request=None)
+        self.assertEquals(login_url, "/accounts/adfs_oauth2/login/")
+    
+    def test_template_login_url(self):
+        registry = providers.ProviderRegistry()
+        registry.load()
+        provider = registry.by_id(ADFSOAuth2Provider.id)
+        
+        factory = RequestFactory()
+        request = factory.get('/accounts/login/')
+        c = RequestContext(request, {
+            'provider': provider,
+        })
+        t = Template("""
+            {% load socialaccount %}
+            {% provider_login_url provider.id %}
+        """)
+        content = t.render(c).strip()
+        
+        self.assertEquals(content, "/accounts/adfs_oauth2/login/")
 
 
 class ADFSTests(TestCase):
@@ -39,7 +64,6 @@ class ADFSTests(TestCase):
     
     def setUp(self):
         super(ADFSTests, self).setUp()
-        self.factory = RequestFactory()
         self.provider = providers.registry.by_id(self.provider_id)
         app = SocialApp.objects.create(provider=self.provider.id,
                                        name=self.provider.id,
@@ -47,22 +71,6 @@ class ADFSTests(TestCase):
                                        key=self.provider.id,
                                        secret='dummy')
         app.sites.add(Site.objects.get_current())
-    
-    def test_provider_login_url(self):
-        provider_ids = [p.id for p in get_providers()]
-        self.assertIn(self.provider_id, provider_ids)
-        
-        request = self.factory.get('/accounts/login/')
-        c = RequestContext(request, {
-            'provider': self.provider,
-        })
-        t = Template("""
-            {% load socialaccount %}
-            {% provider_login_url provider.id process=login %}
-        """)
-        content = t.render(c)
-        
-        self.assertEquals(content, "")
     
     def test_unencrypted_token_payload(self):
         claims = {
