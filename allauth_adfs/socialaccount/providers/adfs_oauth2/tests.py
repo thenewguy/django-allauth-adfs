@@ -22,17 +22,11 @@ def encode(source):
     return content.strip()
 
 
-class TestProvidersRegistryFindsUs(TestCase):
-    def test_load(self):
-        registry = providers.ProviderRegistry()
-        self.assertFalse(registry.loaded)
-        self.assertFalse(registry.provider_map)
-        self.assertNotIn(ADFSOAuth2Provider.id, registry.provider_map)
-        registry.load()
-        self.assertIn(ADFSOAuth2Provider.id, registry.provider_map)
-        provider = registry.by_id(ADFSOAuth2Provider.id)
-        self.assertIsInstance(provider, ADFSOAuth2Provider)
-    
+class TestProviderUrls(TestCase):
+    def test_urls_importable(self):
+        from allauth_adfs.socialaccount.providers.adfs_oauth2 import urls
+        self.assertTrue(urls.urlpatterns)
+        
     def test_login_url(self):
         registry = providers.ProviderRegistry()
         registry.load()
@@ -57,6 +51,18 @@ class TestProvidersRegistryFindsUs(TestCase):
         content = t.render(c).strip()
         
         self.assertEquals(content, "/accounts/adfs_oauth2/login/")
+
+
+class TestProvidersRegistryFindsUs(TestCase):
+    def test_load(self):
+        registry = providers.ProviderRegistry()
+        self.assertFalse(registry.loaded)
+        self.assertFalse(registry.provider_map)
+        self.assertNotIn(ADFSOAuth2Provider.id, registry.provider_map)
+        registry.load()
+        self.assertIn(ADFSOAuth2Provider.id, registry.provider_map)
+        provider = registry.by_id(ADFSOAuth2Provider.id)
+        self.assertIsInstance(provider, ADFSOAuth2Provider)
 
 
 class ADFSTests(TestCase):
