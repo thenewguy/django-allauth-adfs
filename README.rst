@@ -52,3 +52,19 @@ admin.site.login = login_required(
 
 the "permission-denied-change-user" view is just a view that presents a message via the messages framework
 to the user about why they are being redirected and then redirects to the sign out view.
+
+============
+testing
+============
+
+cd vagrant/
+vagrant up
+vagrant ssh
+cd vagrant/
+
+# note we move TOX_WORK_DIR outside of the vagrant synced folder to increase performance
+TOX_WORK_DIR=/tmp tox -vv
+
+-- or test one environment and skip the coverage report --
+
+SUPPRESS_COVERAGE_REPORT="--suppress-coverage-report" TOX_WORK_DIR="/tmp" tox -vv -e py36-django-20 

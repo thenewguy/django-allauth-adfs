@@ -4,11 +4,15 @@ from allauth.socialaccount.providers.oauth2.views import (OAuth2Adapter,
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.six import string_types
 from .provider import ADFSOAuth2Provider
-from urlparse import urlunsplit
 from .utils import decode_payload_segment, parse_token_payload_segment
 import requests
 from xml.dom.minidom import parseString
 from hashlib import md5
+
+try:
+    from urllib.parse import urlunsplit
+except ImportError:
+    from urlparse import urlunsplit
 
 try:
     import jwt

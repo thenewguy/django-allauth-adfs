@@ -4,9 +4,12 @@ import six
 
 from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
+from allauth.socialaccount.templatetags.socialaccount import get_providers
 from allauth.socialaccount.tests import OAuth2TestsMixin
 from allauth.tests import MockedResponse, TestCase
 from django.contrib.sites.models import Site
+from django.template import RequestContext, Template
+from django.test.client import RequestFactory
 
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment
@@ -17,6 +20,53 @@ def encode(source):
         source = source.encode('utf-8')
     content = base64.b64encode(source).decode('utf-8')
     return content.strip()
+
+
+class TestProviderUrls(TestCase):
+    def test_urls_importable(self):
+        from allauth_adfs.socialaccount.providers.adfs_oauth2 import urls
+    
+    def test_urls_populated(self):
+        from allauth_adfs.socialaccount.providers.adfs_oauth2 import urls
+        self.assertIsInstance(urls.urlpatterns, list)
+        self.assertTrue(urls.urlpatterns)
+        
+    def test_login_url(self):
+        registry = providers.ProviderRegistry()
+        registry.load()
+        provider = registry.by_id(ADFSOAuth2Provider.id)
+        login_url = provider.get_login_url(request=None)
+        self.assertEquals(login_url, "/accounts/adfs_oauth2/login/")
+    
+    def test_template_login_url(self):
+        registry = providers.ProviderRegistry()
+        registry.load()
+        provider = registry.by_id(ADFSOAuth2Provider.id)
+        
+        factory = RequestFactory()
+        request = factory.get('/accounts/login/')
+        c = RequestContext(request, {
+            'provider': provider,
+        })
+        t = Template("""
+            {% load socialaccount %}
+            {% provider_login_url provider.id %}
+        """)
+        content = t.render(c).strip()
+        
+        self.assertEquals(content, "/accounts/adfs_oauth2/login/")
+
+
+class TestProvidersRegistryFindsUs(TestCase):
+    def test_load(self):
+        registry = providers.ProviderRegistry()
+        self.assertFalse(registry.loaded)
+        self.assertFalse(registry.provider_map)
+        self.assertNotIn(ADFSOAuth2Provider.id, registry.provider_map)
+        registry.load()
+        self.assertIn(ADFSOAuth2Provider.id, registry.provider_map)
+        provider = registry.by_id(ADFSOAuth2Provider.id)
+        self.assertIsInstance(provider, ADFSOAuth2Provider)
 
 
 class ADFSTests(TestCase):
