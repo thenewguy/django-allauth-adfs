@@ -14,7 +14,7 @@ from django.test.client import RequestFactory
 from django.urls import reverse
 
 from .provider import ADFSOAuth2Provider
-from .utils import decode_payload_segment, parse_token_payload_segment
+from .utils import decode_payload_segment, parse_token_payload_segment, default_extract_uid_handler
 
 
 def encode(source):
@@ -71,23 +71,40 @@ class TestProvidersRegistryFindsUs(TestCase):
         self.assertIsInstance(provider, ADFSOAuth2Provider)
 
 
-class ADFSTests(TestCase):
+class UtilsTests(TestCase):
+    def test_guid(self):
+        data = {"guid": "2brp/e0eREqX7SzEA6JjJA=="}
+        uid = default_extract_uid_handler(data, None)
+        self.assertEquals(uid, six.text_type('fde9bad9-1eed-4a44-97ed-2cc403a26324'))
+        
+
+
+class ADFSTests(OAuth2TestsMixin, TestCase):
     provider_id = ADFSOAuth2Provider.id
     
-    def setUp(self):
-        super(ADFSTests, self).setUp()
-        self.provider = providers.registry.by_id(self.provider_id)
-        app = SocialApp.objects.create(provider=self.provider.id,
-                                       name=self.provider.id,
-                                       client_id='app123id',
-                                       key=self.provider.id,
-                                       secret='dummy')
-        app.sites.add(Site.objects.get_current())
+    def get_mocked_response(self):
+        return MockedResponse(200, '')
+    
+    def get_login_response_json(self, with_refresh_token=True):
+        rt = ''
+        if with_refresh_token:
+            rt = ',"refresh_token": "testrf"'
+        claims = {
+              "guid": "2brp/e0eREqX7SzEA6JjJA==",
+              "upn": "foo@bar.example.com",
+              "first_name": "jane",
+              "last_name": "doe"
+            }
+        jwt = self.get_dummy_jwt(claims)
+        return """{
+            "uid":"weibo",
+            "access_token":"%s"
+            %s }""" % (jwt, rt)
     
     def test_unencrypted_token_payload(self):
         claims = {
           "guid": "2brp/e0eREqX7SzEA6JjJA==",
-          "UPN": "foo@bar.example.com",
+          "upn": "foo@bar.example.com",
           "first_name": "jane",
           "last_name": "doe"
         }
@@ -99,9 +116,15 @@ class ADFSTests(TestCase):
         parsed_claims = json.loads(decoded_claims_json)
         
         self.assertEqual(claims["guid"], parsed_claims["guid"])
-        self.assertEqual(claims["UPN"], parsed_claims["UPN"])
+        self.assertEqual(claims["upn"], parsed_claims["upn"])
         self.assertEqual(claims["first_name"], parsed_claims["first_name"])
         self.assertEqual(claims["last_name"], parsed_claims["last_name"])
+    
+    def test_account_refresh_token_saved_next_login(self, **kwargs):
+        pass
+    
+    def test_account_tokens(self, **kwargs):
+        pass
     
     def get_dummy_jwt(self, claims):
         # raw data
@@ -119,11 +142,3 @@ class ADFSTests(TestCase):
         payload = [header_data, claims_data, signature_data]
         
         return ".".join(payload)
-
-    def test_authentication_error(self):
-        resp = self.client.get(reverse(self.provider.id + '_callback'))
-        ACCOUNT_TEMPLATE_EXTENSION = getattr(settings, 'ACCOUNT_TEMPLATE_EXTENSION', 'html')
-        self.assertTemplateUsed(
-            resp,
-            'socialaccount/authentication_error.%s' % ACCOUNT_TEMPLATE_EXTENSION,
-        )
