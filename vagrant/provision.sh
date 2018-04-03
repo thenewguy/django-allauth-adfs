@@ -10,7 +10,7 @@ add-apt-repository ppa:deadsnakes/ppa
 
 apt-get update
 
-apt-get install -y python3.5 python3.6
+apt-get install -y git python3.5 python3.6
 
 # install awscli and awsebcli under python 3
 curl -O https://bootstrap.pypa.io/get-pip.py
