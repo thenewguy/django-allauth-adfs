@@ -35,12 +35,14 @@ def parse_token_payload_segment(t):
     return payload_segment
 
 def default_extract_uid_handler(data, app):
-    raw = urlsafe_b64decode(data['guid'])
+    guid = force_bytes(data['guid'])
+    raw = urlsafe_b64decode(guid)
     uid = UUID(bytes_le=raw)
     return text_type(uid)
 
 def per_social_app_extract_uid_handler(data, app):
-    raw = urlsafe_b64decode(data['guid'])
+    guid = force_bytes(data['guid'])
+    raw = urlsafe_b64decode(guid)
     uid = UUID(bytes_le=raw)
     return "{};{}".format(app.id, uid)
 
