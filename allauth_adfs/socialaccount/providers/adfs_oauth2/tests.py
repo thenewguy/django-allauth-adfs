@@ -1,6 +1,7 @@
 import base64
 import json
 import six
+import unittest
 
 from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
@@ -120,9 +121,11 @@ class ADFSTests(OAuth2TestsMixin, TestCase):
         self.assertEqual(claims["first_name"], parsed_claims["first_name"])
         self.assertEqual(claims["last_name"], parsed_claims["last_name"])
     
+    @unittest.skip("refresh tokens are not supported")
     def test_account_refresh_token_saved_next_login(self, **kwargs):
         pass
     
+    @unittest.skip("cannot match expected token value")
     def test_account_tokens(self, **kwargs):
         pass
     
