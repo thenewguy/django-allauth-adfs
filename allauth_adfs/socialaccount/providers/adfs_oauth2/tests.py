@@ -82,39 +82,28 @@ class UtilsTests(TestCase):
 
 class ADFSTests(OAuth2TestsMixin, TestCase):
     provider_id = ADFSOAuth2Provider.id
+    default_claims = {
+        "guid": "2brp/e0eREqX7SzEA6JjJA==",
+        "upn": "foo@bar.example.com",
+        "first_name": "jane",
+        "last_name": "doe"
+    }
     
     def get_mocked_response(self):
         return MockedResponse(200, '')
     
-    def get_login_response_json(self, with_refresh_token=True):
-        rt = ''
-        if with_refresh_token:
-            rt = ',"refresh_token": "testrf"'
-        claims = {
-              "guid": "2brp/e0eREqX7SzEA6JjJA==",
-              "upn": "foo@bar.example.com",
-              "first_name": "jane",
-              "last_name": "doe"
-            }
-        jwt = self.get_dummy_jwt(claims)
-        return """{
-            "uid":"weibo",
-            "access_token":"%s"
-            %s }""" % (jwt, rt)
+    def get_login_response_json(self, **kwargs):
+        jwt = self.get_dummy_jwt()
+        return '{"access_token":"%s"}' % jwt
     
     def test_unencrypted_token_payload(self):
-        claims = {
-          "guid": "2brp/e0eREqX7SzEA6JjJA==",
-          "upn": "foo@bar.example.com",
-          "first_name": "jane",
-          "last_name": "doe"
-        }
-        
-        jwt = self.get_dummy_jwt(claims)
+        jwt = self.get_dummy_jwt()
         
         encoded_claims_json = parse_token_payload_segment(jwt)
         decoded_claims_json = decode_payload_segment(encoded_claims_json)
         parsed_claims = json.loads(decoded_claims_json)
+        
+        claims = self.default_claims
         
         self.assertEqual(claims["guid"], parsed_claims["guid"])
         self.assertEqual(claims["upn"], parsed_claims["upn"])
@@ -129,7 +118,10 @@ class ADFSTests(OAuth2TestsMixin, TestCase):
     def test_account_tokens(self, **kwargs):
         pass
     
-    def get_dummy_jwt(self, claims):
+    def get_dummy_jwt(self, claims=None):
+        if claims is None:
+            claims = self.default_claims
+        
         # raw data
         header = {
             "alg": "none",
