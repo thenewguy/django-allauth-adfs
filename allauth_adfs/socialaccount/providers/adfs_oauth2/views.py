@@ -145,7 +145,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
             
             encoded_data = parse_token_payload_segment(token.token)
             data = decode_payload_segment(encoded_data)
-            payload = json.loads(data.decode('utf-8'))
+            payload = json.loads(data)
         
         return self.get_provider().sociallogin_from_response(
             request,
