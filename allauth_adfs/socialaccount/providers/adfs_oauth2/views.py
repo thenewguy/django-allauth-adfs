@@ -1,3 +1,5 @@
+import json
+
 from allauth.socialaccount.providers.oauth2.views import (OAuth2Adapter,
                                                           OAuth2LoginView,
                                                           OAuth2CallbackView)
@@ -21,7 +23,6 @@ try:
     from cryptography.hazmat.primitives import serialization
 except ImportError:
     JWT_AVAILABLE = False
-    import json
 else:
     JWT_AVAILABLE = True
 
@@ -123,26 +124,26 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
     def complete_login(self, request, app, token, **kwargs):
         verify_token = self.get_setting("verify_token", True, required=False)
 
-        if JWT_AVAILABLE:
+        if verify_token:
+            if not JWT_AVAILABLE:
+                raise ImproperlyConfigured("ADFS OAuth2 cannot verify tokens without the `PyJWT` and `cryptography` packages.  They can both be installed with pip.  The `cryptography` package requires development headers for python and libffi.  They can be installed with 'apt-get install python-dev libffi-dev' on Ubuntu Linux.  You can disable token verification by setting 'verify_token' to False under the 'adfs_oauth2' socialaccount provider configuration dictionary in `settings.py`.  IT IS NOT RECOMMENDED TO DISABLE TOKEN VERIFICATION IN PRODUCTION!")
+
             kwargs = {"verify": verify_token}
-            if verify_token:
-                auth_params = self.get_setting("AUTH_PARAMS")
 
-                try:
-                    kwargs["audience"] = "microsoft:identityserver:%s" % auth_params["resource"]
-                except KeyError:
-                    raise ImproperlyConfigured("ADFS OAuth2 AUTH_PARAMS setting 'resource' must be specified.")
+            auth_params = self.get_setting("AUTH_PARAMS")
 
-                kwargs["leeway"] = self.get_setting("time_validation_leeway", 0, required=False)
+            try:
+                kwargs["audience"] = "microsoft:identityserver:%s" % auth_params["resource"]
+            except KeyError:
+                raise ImproperlyConfigured("ADFS OAuth2 AUTH_PARAMS setting 'resource' must be specified.")
 
-                kwargs["key"] = self.token_signature_key
+            kwargs["leeway"] = self.get_setting("time_validation_leeway", 0, required=False)
+
+            kwargs["key"] = self.token_signature_key
 
             payload = jwt.decode(token.token, **kwargs)
 
         else:
-            if verify_token:
-                raise ImproperlyConfigured("ADFS OAuth2 cannot verify tokens without the `PyJWT` and `cryptography` packages.  They can both be installed with pip.  The `cryptography` package requires development headers for python and libffi.  They can be installed with 'apt-get install python-dev libffi-dev' on Ubuntu Linux.  You can disable token verification by setting 'verify_token' to False under the 'adfs_oauth2' socialaccount provider configuration dictionary in `settings.py`.  IT IS NOT RECOMMENDED TO DISABLE TOKEN VERIFICATION IN PRODUCTION!")
-
             encoded_data = parse_token_payload_segment(token.token)
             data = decode_payload_segment(encoded_data)
             payload = json.loads(data)
