@@ -32,7 +32,7 @@ class RunTestsCommand(SetuptoolsTestCommand):
         import subprocess
         import sys
         import time
-        
+
         owd = os.path.abspath(os.getcwd())
         nwd = os.path.abspath(os.path.dirname(__file__))
         os.chdir(nwd)
@@ -40,10 +40,10 @@ class RunTestsCommand(SetuptoolsTestCommand):
         if not tests:
             tests.extend([nwd, os.path.abspath('test_project')])
         errno = coverage.cmdline.main(['run', os.path.abspath('test_project/manage.py'), 'test', '--verbosity=%d' % self.level] + tests)
-        
+
         if not self.suppress_coverage_report:
             coverage.cmdline.main(['report', '-m'])
-        
+
         if None not in [os.getenv("TRAVIS", None), os.getenv("TRAVIS_JOB_ID", None), os.getenv("TRAVIS_BRANCH", None)]:
             env = os.environ.copy()
             env["PYTHONPATH"] = os.pathsep.join(sys.path)
@@ -57,9 +57,9 @@ class RunTestsCommand(SetuptoolsTestCommand):
                     time.sleep(seconds)
                 else:
                     print("coveralls failed.")
-        
+
         os.chdir(owd)
-        
+
         raise SystemExit(errno)
 
 pki_require = ["certifi"]
