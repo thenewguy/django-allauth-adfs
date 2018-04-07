@@ -7,10 +7,11 @@ from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.templatetags.socialaccount import get_providers
 from allauth.socialaccount.tests import OAuth2TestsMixin
-from allauth.tests import MockedResponse, TestCase
+from allauth.tests import MockedResponse
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.template import RequestContext, Template
+from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 
@@ -80,7 +81,7 @@ class UtilsTests(TestCase):
 
 
 
-class ADFSTests(OAuth2TestsMixin, TestCase):
+class ADFSTests(OAuth2TestsMixin):
     provider_id = ADFSOAuth2Provider.id
     default_claims = {
         "guid": "2brp/e0eREqX7SzEA6JjJA==",
@@ -95,20 +96,6 @@ class ADFSTests(OAuth2TestsMixin, TestCase):
     def get_login_response_json(self, **kwargs):
         jwt = self.get_dummy_jwt()
         return '{"access_token":"%s"}' % jwt
-
-    def test_unencrypted_token_payload(self):
-        jwt = self.get_dummy_jwt()
-
-        encoded_claims_json = parse_token_payload_segment(jwt)
-        decoded_claims_json = decode_payload_segment(encoded_claims_json)
-        parsed_claims = json.loads(decoded_claims_json)
-
-        claims = self.default_claims
-
-        self.assertEqual(claims["guid"], parsed_claims["guid"])
-        self.assertEqual(claims["upn"], parsed_claims["upn"])
-        self.assertEqual(claims["first_name"], parsed_claims["first_name"])
-        self.assertEqual(claims["last_name"], parsed_claims["last_name"])
 
     @unittest.skip("refresh tokens are not supported")
     def test_account_refresh_token_saved_next_login(self, **kwargs):
@@ -137,3 +124,36 @@ class ADFSTests(OAuth2TestsMixin, TestCase):
         payload = [header_data, claims_data, signature_data]
 
         return ".".join(payload)
+
+
+class UnencryptedADFSTests(ADFSTests, TestCase):
+    def test_unencrypted_token_payload(self):
+        jwt = self.get_dummy_jwt()
+
+        encoded_claims_json = parse_token_payload_segment(jwt)
+        decoded_claims_json = decode_payload_segment(encoded_claims_json)
+        parsed_claims = json.loads(decoded_claims_json)
+
+        claims = self.default_claims
+
+        self.assertEqual(claims["guid"], parsed_claims["guid"])
+        self.assertEqual(claims["upn"], parsed_claims["upn"])
+        self.assertEqual(claims["first_name"], parsed_claims["first_name"])
+        self.assertEqual(claims["last_name"], parsed_claims["last_name"])
+
+
+@override_settings(SOCIALACCOUNT_PROVIDERS = {
+    'adfs_oauth2': {
+        'name': 'ADFS Login',
+        'host': 'localhost',
+        'redirect_uri_protocol': 'http',
+        'time_validation_leeway': 30,  # allow for 30 seconds of clock drift
+        'verify_token': True,
+        'AUTH_PARAMS': {
+            'resource': 'adfs_oauth2_tests',
+        },
+    }
+})
+class EncryptedADFSTests(ADFSTests, TestCase):
+    def test_verify_true(self):
+        self.assertTrue(settings.SOCIALACCOUNT_PROVIDERS['adfs_oauth2']['verify_token'])
