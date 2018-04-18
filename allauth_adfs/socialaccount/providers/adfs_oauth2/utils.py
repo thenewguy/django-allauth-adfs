@@ -18,7 +18,7 @@ def decode_payload_segment(s):
     if rem > 0:
         s += b'=' * (4 - rem)
 
-    return force_text(urlsafe_b64decode(s))
+    return urlsafe_b64decode(s)
 
 def parse_token_payload_segment(t):
     """
