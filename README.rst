@@ -60,7 +60,7 @@ testing
 cd vagrant/
 vagrant up
 vagrant ssh
-cd vagrant/
+cd /vagrant/
 
 # note we move TOX_WORK_DIR outside of the vagrant synced folder to increase performance
 TOX_WORK_DIR=/tmp tox -vv

@@ -9,3 +9,4 @@ db.sqlite3
 .coverage
 /vagrant/.vagrant
 /.tox
+/domain.crt

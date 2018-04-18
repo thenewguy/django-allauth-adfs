@@ -32,7 +32,7 @@ class RunTestsCommand(SetuptoolsTestCommand):
         import subprocess
         import sys
         import time
-        
+
         owd = os.path.abspath(os.getcwd())
         nwd = os.path.abspath(os.path.dirname(__file__))
         os.chdir(nwd)
@@ -40,10 +40,10 @@ class RunTestsCommand(SetuptoolsTestCommand):
         if not tests:
             tests.extend([nwd, os.path.abspath('test_project')])
         errno = coverage.cmdline.main(['run', os.path.abspath('test_project/manage.py'), 'test', '--verbosity=%d' % self.level] + tests)
-        
+
         if not self.suppress_coverage_report:
             coverage.cmdline.main(['report', '-m'])
-        
+
         if None not in [os.getenv("TRAVIS", None), os.getenv("TRAVIS_JOB_ID", None), os.getenv("TRAVIS_BRANCH", None)]:
             env = os.environ.copy()
             env["PYTHONPATH"] = os.pathsep.join(sys.path)
@@ -57,16 +57,18 @@ class RunTestsCommand(SetuptoolsTestCommand):
                     time.sleep(seconds)
                 else:
                     print("coveralls failed.")
-        
+
         os.chdir(owd)
-        
+
         raise SystemExit(errno)
+
+jwt_require = ["PyJWT", "cryptography"]
 
 pki_require = ["certifi"]
 if version_info < (3, 0):
     pki_require = pki_require + ["pyopenssl", "ndg-httpsclient"]
 
-tests_require = ['coverage', 'beautifulsoup4', 'html5lib', 'coveralls']
+tests_require = ['coverage', 'beautifulsoup4', 'html5lib', 'coveralls'] + jwt_require
 if version_info < (3, 3):
     tests_require = tests_require + ['mock', 'pbr<1.7.0']
 
@@ -80,7 +82,7 @@ setup(
     cmdclass={'test': RunTestsCommand},
     packages=find_packages(),
     extras_require={
-        "jwt": ["PyJWT", "cryptography"],
+        "jwt": jwt_require,
         "pki": pki_require,
     },
     install_requires=['django-allauth>=0.26.0', 'six'],
