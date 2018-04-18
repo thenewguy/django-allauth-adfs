@@ -1,8 +1,12 @@
+from __future__ import print_function
+
 import base64
 import json
 import six
 import unittest
+from xml.parsers.expat import ExpatError
 
+import requests
 from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.templatetags.socialaccount import get_providers
@@ -17,6 +21,7 @@ from django.urls import reverse
 
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment, default_extract_uid_handler
+from .views import ADFSOAuth2Adapter
 
 
 def encode(source):
@@ -80,7 +85,6 @@ class UtilsTests(TestCase):
         self.assertEquals(uid, six.text_type('fde9bad9-1eed-4a44-97ed-2cc403a26324'))
 
 
-
 class ADFSTests(OAuth2TestsMixin):
     provider_id = ADFSOAuth2Provider.id
     default_claims = {
@@ -138,3 +142,72 @@ class ADFSTests(OAuth2TestsMixin):
         self.assertEqual(claims["upn"], parsed_claims["upn"])
         self.assertEqual(claims["first_name"], parsed_claims["first_name"])
         self.assertEqual(claims["last_name"], parsed_claims["last_name"])
+
+
+#
+# INTEGRATION TESTS REQUIRE AN ACTUAL ADFS SERVER
+# THIS ALLOWS US TO RUN TESTS IF THE SERVER IS AVAIALBLE
+# LOCALLY BUT STILL RUN OTHER TESTS ON TRAVIS. USE
+# HOSTNAME EXPANSION INSTEAD OF HARDCODING THE INTERNAL
+# ADFS SERVER ADDRESS. CHECK IS CURR
+#
+ADFS_SERVER_HOSTNAME = 'sso'
+
+try:
+    requests.get('http://%s' % ADFS_SERVER_HOSTNAME, timeout=1)
+except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+    ADFS_AVAILABLE = False
+    print("\nADFS is not available at '%s'. Exception:\n%r\n" % (ADFS_SERVER_HOSTNAME, e))
+else:
+    ADFS_AVAILABLE = True
+
+
+@unittest.skipUnless(ADFS_AVAILABLE, "requires reachable ADFS server")
+@override_settings(SOCIALACCOUNT_PROVIDERS = {
+    'adfs_oauth2': {
+        'name': 'ADFS Login',
+        'host': ADFS_SERVER_HOSTNAME,
+        'redirect_uri_protocol': 'http',
+        'time_validation_leeway': 30,  # allow for 30 seconds of clock drift
+        'verify_token': True,
+        'AUTH_PARAMS': {
+            'resource': 'integration-tests',
+        },
+    }
+})
+class IntegrationADFSTests(OAuth2TestsMixin, TestCase):
+    provider_id = ADFSOAuth2Provider.id
+    
+    def setUp(self):
+        super(IntegrationADFSTests, self).setUp()
+        factory = RequestFactory()
+        request = factory.get('/accounts/login/')
+        adapter = ADFSOAuth2Adapter(request=request)
+        self.adapter = adapter
+    
+    def get_mocked_response(self):
+        return MockedResponse(200, '')
+    
+    @unittest.skip("refresh tokens are not supported")
+    def test_account_refresh_token_saved_next_login(self, **kwargs):
+        pass
+
+    @unittest.skip("cannot match expected token value")
+    def test_account_tokens(self, **kwargs):
+        pass
+    
+    def test_login(self, **kwargs):
+        # we cannot actually log in, so the xml returned is blank and fails
+        # but this tests the process up to that point and we were having exceptions
+        # prior to that point when converting to python3 so this is better than nothing
+        with self.assertRaises(ExpatError):
+            super(IntegrationADFSTests, self).test_login(**kwargs)
+    
+    def test_verify_true(self):
+        self.assertTrue(settings.SOCIALACCOUNT_PROVIDERS['adfs_oauth2']['verify_token'])
+    
+    def test_access_token_url(self):
+        self.assertEquals(self.adapter.access_token_url, "https://sso/adfs/oauth2/token")
+    
+    def test_federation_metadata_xml(self):
+        self.assertTrue(self.adapter.federation_metadata_xml)
