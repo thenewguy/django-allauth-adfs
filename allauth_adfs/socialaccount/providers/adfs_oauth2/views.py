@@ -5,6 +5,7 @@ from allauth.socialaccount.providers.oauth2.views import (OAuth2Adapter,
                                                           OAuth2CallbackView)
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.six import string_types
+from django.utils.encoding import force_bytes
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment
 import requests
@@ -93,10 +94,11 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
     def token_signature_key(self):
         cache_alias = self.get_setting("token_signature_key_cache_alias", DEFAULT_CACHE_ALIAS)
         cache = caches[cache_alias]
+        hashable_url = force_bytes(self.federation_metadata_url)
         cache_key = ":".join([
             "allauth_adfs",
             "ADFSOAuth2Adapter",
-            md5(self.federation_metadata_url).hexdigest(),
+            md5(hashable_url).hexdigest(),
             "token_signature_key",
         ])
 
