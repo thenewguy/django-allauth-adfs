@@ -17,3 +17,9 @@ curl -O https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 
 pip install tox
+
+# install domain certificate if available
+cp /vagrant/domain.crt /usr/local/share/ca-certificates/domain.crt || echo COULD NOT COPY DOMAIN TRUST
+ls /usr/local/share/ca-certificates/domain.crt && update-ca-certificates
+rm -f /etc/profile.d/REQUESTS_CA_BUNDLE.sh
+ls /usr/local/share/ca-certificates/domain.crt && echo 'export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt' > /etc/profile.d/REQUESTS_CA_BUNDLE.sh
