@@ -215,5 +215,9 @@ class IntegrationADFSTests(OAuth2TestsMixin, TestCase):
         expected = "https://%s/adfs/oauth2/token" % ADFS_SERVER_FQDN
         self.assertEquals(self.adapter.access_token_url, expected)
     
+    def test_token_signature_key(self):
+        # this varies, but confirm we get a truthy value and the code runs
+        self.assertTrue(self.adapter.token_signature_key)
+    
     def test_federation_metadata_xml(self):
         self.assertTrue(self.adapter.federation_metadata_xml)
