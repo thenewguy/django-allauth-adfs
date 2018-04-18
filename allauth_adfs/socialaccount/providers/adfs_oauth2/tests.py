@@ -2,7 +2,9 @@ import base64
 import json
 import six
 import unittest
+from hashlib import md5
 
+import jwt
 from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.templatetags.socialaccount import get_providers
@@ -15,6 +17,7 @@ from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
 
+from .compat import caches, DEFAULT_CACHE_ALIAS
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment, default_extract_uid_handler
 
@@ -90,11 +93,14 @@ class ADFSTests(OAuth2TestsMixin):
         "last_name": "doe"
     }
 
+    def get_jwt(self):
+        raise NotImplementedError()
+
     def get_mocked_response(self):
         return MockedResponse(200, '')
 
     def get_login_response_json(self, **kwargs):
-        jwt = self.get_dummy_jwt()
+        jwt = self.get_jwt()
         return '{"access_token":"%s"}' % jwt
 
     @unittest.skip("refresh tokens are not supported")
@@ -105,9 +111,13 @@ class ADFSTests(OAuth2TestsMixin):
     def test_account_tokens(self, **kwargs):
         pass
 
-    def get_dummy_jwt(self, claims=None):
-        if claims is None:
-            claims = self.default_claims
+
+class UnencryptedADFSTests(ADFSTests, TestCase):
+    def test_verify_false(self):
+        self.assertFalse(settings.SOCIALACCOUNT_PROVIDERS['adfs_oauth2']['verify_token'])
+
+    def get_jwt(self):
+        claims = self.default_claims
 
         # raw data
         header = {
@@ -125,10 +135,8 @@ class ADFSTests(OAuth2TestsMixin):
 
         return ".".join(payload)
 
-
-class UnencryptedADFSTests(ADFSTests, TestCase):
     def test_unencrypted_token_payload(self):
-        jwt = self.get_dummy_jwt()
+        jwt = self.get_jwt()
 
         encoded_claims_json = parse_token_payload_segment(jwt)
         decoded_claims_json = decode_payload_segment(encoded_claims_json)
@@ -155,5 +163,25 @@ class UnencryptedADFSTests(ADFSTests, TestCase):
     }
 })
 class EncryptedADFSTests(ADFSTests, TestCase):
+    def setUp(self):
+        super(EncryptedADFSTests, self).setUp()
+
+        # there isn't currently a clean way to inject the decryption key
+        # so use some trickery and make token_signature_key return what we want
+        # from the cache instead
+        cache_key = ":".join([
+            "allauth_adfs",
+            "ADFSOAuth2Adapter",
+            md5("localhost").hexdigest(),
+            "token_signature_key",
+        ])
+
+        self.jwt_encryption_key = 'p4ssw0rd'
+        cache = caches[DEFAULT_CACHE_ALIAS]
+        cache.set(cache_key, self.jwt_encryption_key, 3600)
+
     def test_verify_true(self):
         self.assertTrue(settings.SOCIALACCOUNT_PROVIDERS['adfs_oauth2']['verify_token'])
+
+    def get_jwt(self):
+        return jwt.encode(self.default_claims, self.jwt_encryption_key, algorithm='HS256')

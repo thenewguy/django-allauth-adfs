@@ -1,0 +1,18 @@
+from uuid import UUID, uuid4
+from sys import maxint
+from struct import pack
+from base64 import urlsafe_b64encode
+
+def calc_username_length(uid, aid):
+    uid_bytes = uid.bytes
+    aid_bytes = pack("I", aid-1)# I format is 0-4294967295
+    uid_b64 = urlsafe_b64encode(uid_bytes)
+    aid_b64 = urlsafe_b64encode(aid_bytes)
+    username = "{}.{}".format(uid_b64, aid_b64).replace("=", "")
+    print len(username), username
+    
+
+calc_username_length(uuid4(), 0)
+calc_username_length(uuid4(), 1)
+calc_username_length(uuid4(), maxint)
+calc_username_length(uuid4(), 4294967295)

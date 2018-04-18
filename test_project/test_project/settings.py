@@ -91,6 +91,17 @@ DATABASES = {
 }
 
 
+CACHE_LOCATION = '/var/tmp/django_cache'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': CACHE_LOCATION,
+    }
+}
+
+os.makedirs(CACHE_LOCATION)
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 

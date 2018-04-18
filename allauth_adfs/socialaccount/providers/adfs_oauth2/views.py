@@ -90,15 +90,19 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
         return xml
 
     @property
-    def token_signature_key(self):
-        cache_alias = self.get_setting("token_signature_key_cache_alias", DEFAULT_CACHE_ALIAS)
-        cache = caches[cache_alias]
-        cache_key = ":".join([
+    def token_signature_key_cache_key(self):
+        return ":".join([
             "allauth_adfs",
             "ADFSOAuth2Adapter",
             md5(self.federation_metadata_url).hexdigest(),
             "token_signature_key",
         ])
+
+    @property
+    def token_signature_key(self):
+        cache_alias = self.get_setting("token_signature_key_cache_alias", DEFAULT_CACHE_ALIAS)
+        cache = caches[cache_alias]
+        cache_key = self.token_signature_key_cache_key
 
         pub = cache.get(cache_key)
 
