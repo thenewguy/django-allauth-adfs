@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import base64
 import json
+import socket
 import six
 import unittest
 from xml.parsers.expat import ExpatError
@@ -151,13 +152,17 @@ class ADFSTests(OAuth2TestsMixin):
 # HOSTNAME EXPANSION INSTEAD OF HARDCODING THE INTERNAL
 # ADFS SERVER ADDRESS. CHECK IS CURR
 #
-ADFS_SERVER_HOSTNAME = 'sso'
+ADFS_SERVER_CNAME = 'sso'
+ADFS_SERVER_HOSTNAME = socket.getfqdn(ADFS_SERVER_CNAME)
+ADFS_SERVER_DOMAIN_LIST = ADFS_SERVER_HOSTNAME.split('.')[1:]
+ADFS_SERVER_DOMAIN = ".".join(ADFS_SERVER_DOMAIN_LIST)
+ADFS_SERVER_FQDN = "%s.%s" % (ADFS_SERVER_CNAME, ADFS_SERVER_DOMAIN)
 
 try:
-    requests.get('http://%s' % ADFS_SERVER_HOSTNAME, timeout=1)
+    requests.get('http://%s' % ADFS_SERVER_FQDN, timeout=1)
 except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
     ADFS_AVAILABLE = False
-    print("\nADFS is not available at '%s'. Exception:\n%r\n" % (ADFS_SERVER_HOSTNAME, e))
+    print("\nADFS is not available at '%s'. Exception:\n%r\n" % (ADFS_SERVER_FQDN, e))
 else:
     ADFS_AVAILABLE = True
 
@@ -166,7 +171,7 @@ else:
 @override_settings(SOCIALACCOUNT_PROVIDERS = {
     'adfs_oauth2': {
         'name': 'ADFS Login',
-        'host': ADFS_SERVER_HOSTNAME,
+        'host': ADFS_SERVER_FQDN,
         'redirect_uri_protocol': 'http',
         'time_validation_leeway': 30,  # allow for 30 seconds of clock drift
         'verify_token': True,
@@ -207,7 +212,8 @@ class IntegrationADFSTests(OAuth2TestsMixin, TestCase):
         self.assertTrue(settings.SOCIALACCOUNT_PROVIDERS['adfs_oauth2']['verify_token'])
     
     def test_access_token_url(self):
-        self.assertEquals(self.adapter.access_token_url, "https://sso/adfs/oauth2/token")
+        expected = "https://%s/adfs/oauth2/token" % ADFS_SERVER_FQDN
+        self.assertEquals(self.adapter.access_token_url, expected)
     
     def test_federation_metadata_xml(self):
         self.assertTrue(self.adapter.federation_metadata_xml)
