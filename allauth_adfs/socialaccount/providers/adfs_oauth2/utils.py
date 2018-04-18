@@ -1,6 +1,8 @@
+from six import text_type
+from django.utils.encoding import force_bytes, force_text
 from uuid import UUID
 from struct import pack
-from base64 import urlsafe_b64encode
+from base64 import urlsafe_b64encode, urlsafe_b64decode
 from allauth.account.models import EmailAddress
 
 def decode_payload_segment(s):
@@ -8,18 +10,22 @@ def decode_payload_segment(s):
        reference:
            https://github.com/jpadilla/pyjwt/blob/528318787eff3df062f2b55a5f79964aece74f18/jwt/utils.py#L12 
     """
+    if isinstance(s, text_type):
+        s = s.encode('ascii')
+    
     rem = len(s) % 4
 
     if rem > 0:
         s += b'=' * (4 - rem)
 
-    return s.decode("base64")
+    return urlsafe_b64decode(s)
 
 def parse_token_payload_segment(t):
     """
         reference:
             https://github.com/jpadilla/pyjwt/blob/4f899c6764d57000eba0fc40721f9e1b5d94a77a/jwt/api_jws.py#L130
     """
+    t = force_bytes(t)
     try:
         signing_input, crypto_segment = t.rsplit(b'.', 1)
         header_segment, payload_segment = signing_input.split(b'.', 1)
@@ -29,12 +35,14 @@ def parse_token_payload_segment(t):
     return payload_segment
 
 def default_extract_uid_handler(data, app):
-    raw = data['guid'].decode("base64")
+    guid = force_bytes(data['guid'])
+    raw = urlsafe_b64decode(guid)
     uid = UUID(bytes_le=raw)
-    return unicode(uid)
+    return text_type(uid)
 
 def per_social_app_extract_uid_handler(data, app):
-    raw = data['guid'].decode("base64")
+    guid = force_bytes(data['guid'])
+    raw = urlsafe_b64decode(guid)
     uid = UUID(bytes_le=raw)
     return "{};{}".format(app.id, uid)
 

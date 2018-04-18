@@ -7,3 +7,6 @@ db.sqlite3
 /build
 /dist
 .coverage
+/vagrant/.vagrant
+/.tox
+/domain.crt

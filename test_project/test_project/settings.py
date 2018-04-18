@@ -43,18 +43,20 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'allauth_adfs',
+    'allauth_adfs.socialaccount.providers.adfs_oauth2',
     'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#    'django.middleware.security.SecurityMiddleware',# Raises 'ImportError: No module named security' on DJ1.7 (obviously, since added in 1.8)
+    'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'test_project.urls'

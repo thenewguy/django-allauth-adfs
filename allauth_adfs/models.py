@@ -13,7 +13,7 @@ def ensure_staff_login_via_adfs(**kwargs):
         sociallogin = kwargs.get("sociallogin")
         via_adfs = sociallogin and sociallogin.account.provider == ADFSOAuth2Provider.id
         if not via_adfs:
-            changed, user = adapter.update_user_fields(user=kwargs["user"])
+            changed, user = adapter.update_user_fields(kwargs["request"], user=kwargs["user"])
             if changed:
                 user.save()
                 provider = registry.by_id(ADFSOAuth2Provider.id)
