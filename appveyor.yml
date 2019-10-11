@@ -1,4 +1,5 @@
-build: false  # Not a C# project, build stuff at the test step instead.
+# docs at https://www.appveyor.com/docs/lang/python/
+build: off
 environment:
   global:
     PYTHON: C:/Python27
@@ -12,7 +13,6 @@ environment:
     - TOXENV=py36-django-111
     - TOXENV=py36-django-20
     - TOXENV=py36-django-master
-matrix:
   allow_failures:
     - TOXENV: py34-django-master
     - TOXENV: py35-django-master
