@@ -1,3 +1,4 @@
+import logging
 import json
 
 from allauth.socialaccount.providers.oauth2.views import (OAuth2Adapter,
@@ -28,6 +29,9 @@ else:
     JWT_AVAILABLE = True
 
 from .compat import caches, DEFAULT_CACHE_ALIAS
+
+
+logger = logging.getLogger(__name__)
 
 
 class ADFSOAuth2Adapter(OAuth2Adapter):
@@ -149,6 +153,8 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
             encoded_data = parse_token_payload_segment(token.token)
             data = decode_payload_segment(encoded_data)
             payload = json.loads(data)
+
+        logger.info("Retrieved the following token payload from %s:\n%s", self.host, payload)
 
         return self.get_provider().sociallogin_from_response(
             request,
