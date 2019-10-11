@@ -1,3 +1,5 @@
+import logging
+
 from allauth.account.signals import user_logged_in
 from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter, get_adapter
@@ -6,6 +8,10 @@ from django.contrib import messages
 from django.dispatch import receiver
 from django.http import HttpResponseForbidden
 from .providers.adfs_oauth2.provider import ADFSOAuth2Provider
+
+
+logger = logging.getLogger(__name__)
+
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def authentication_error(self,
@@ -20,7 +26,20 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         You can use this hook to intervene, e.g. redirect to an
         educational flow by raising an ImmediateHttpResponse.
         """
-        pass
+        logger.error("\n\n".join(
+            "Error with request: %(request)r",
+            "For provider: %(provider_id)s",
+            "Error: %(error)s",
+            "Exception: %(exception)r",
+            "Extra context: %(extra_context)s",
+
+        ) % {
+            "request": request,
+            "provider_id": provider_id,
+            "error": error,
+            "exception": exception,
+            "extra_context": extra_context,
+        })
 
     def pre_social_login(self, request, sociallogin):
         # new user logins are handled by populate_user
