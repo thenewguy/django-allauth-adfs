@@ -4,6 +4,7 @@ addons:
     sources:
       - deadsnakes
     packages:
+      - build-essential
       - python2.7
       - python3.4
       - python3.5
