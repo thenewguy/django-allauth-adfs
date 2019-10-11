@@ -8,6 +8,20 @@ from django.http import HttpResponseForbidden
 from .providers.adfs_oauth2.provider import ADFSOAuth2Provider
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
+    def authentication_error(self,
+                             request,
+                             provider_id,
+                             error=None,
+                             exception=None,
+                             extra_context=None):
+        """
+        Invoked when there is an error in the authentication cycle. In this
+        case, pre_social_login will not be reached.
+        You can use this hook to intervene, e.g. redirect to an
+        educational flow by raising an ImmediateHttpResponse.
+        """
+        pass
+
     def pre_social_login(self, request, sociallogin):
         # new user logins are handled by populate_user
         if sociallogin.is_existing:
