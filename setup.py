@@ -70,7 +70,7 @@ if version_info < (3, 0):
 
 tests_require = ['coverage', 'beautifulsoup4', 'html5lib', 'coveralls'] + jwt_require
 if version_info < (3, 3):
-    tests_require = tests_require + ['mock', 'pbr<1.7.0']
+    tests_require = tests_require + ['mock==2.0.0', 'pbr<1.7.0']
 
 setup(
     name = "django-allauth-adfs",
