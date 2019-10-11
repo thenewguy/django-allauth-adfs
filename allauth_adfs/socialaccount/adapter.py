@@ -19,17 +19,17 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         user = super(SocialAccountAdapter, self).populate_user(request, sociallogin, data)
         self.update_user_fields(request, sociallogin, user)
         return user
-    
+
     def update_user_fields(self, request, sociallogin=None, user=None):
         changed = False
         if user is None:
             user = sociallogin.account.user
         adfs_provider = registry.by_id(ADFSOAuth2Provider.id, request)
-        
+
         false_keys = ["is_staff", "is_superuser"]
         boolean_keys = false_keys + ["is_active"]
         copy_keys = boolean_keys + ["first_name", "last_name", "email"]
-        
+
         if sociallogin is not None and sociallogin.account.provider == ADFSOAuth2Provider.id:
             data = sociallogin.account.extra_data
             values = adfs_provider.extract_common_fields(data)
@@ -47,5 +47,5 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
                     msg = "Staff users must authenticate via the %s provider!" % adfs_provider.name
                     response = HttpResponseForbidden(msg)
                     raise ImmediateHttpResponse(response)
-        
+
         return changed, user
