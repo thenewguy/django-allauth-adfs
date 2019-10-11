@@ -74,7 +74,7 @@ if version_info < (3, 3):
 
 setup(
     name = "django-allauth-adfs",
-    version = "0.1.4",
+    version = "0.1.5",
     author = "gordon",
     author_email = "wgordonw1@gmail.com",
     description = "ADFS oAuth provider for django-allauth",
