@@ -12,22 +12,22 @@ addons:
 env:
   - TOXENV=py27-django-111
   - TOXENV=py34-django-111
-  - TOXENV=py34-django-20
+#  - TOXENV=py34-django-20
   - TOXENV=py35-django-111
-  - TOXENV=py35-django-20
-  - TOXENV=py35-django-21
-  - TOXENV=py35-django-22
-  - TOXENV=py35-django-master
+#  - TOXENV=py35-django-20
+#  - TOXENV=py35-django-21
+#  - TOXENV=py35-django-22
+#  - TOXENV=py35-django-master
   - TOXENV=py36-django-111
-  - TOXENV=py36-django-20
-  - TOXENV=py36-django-21
-  - TOXENV=py36-django-22
-  - TOXENV=py36-django-master
+#  - TOXENV=py36-django-20
+#  - TOXENV=py36-django-21
+#  - TOXENV=py36-django-22
+#  - TOXENV=py36-django-master
   - TOXENV=py37-django-111
-  - TOXENV=py37-django-20
-  - TOXENV=py37-django-21
-  - TOXENV=py37-django-22
-  - TOXENV=py37-django-master
+#  - TOXENV=py37-django-20
+#  - TOXENV=py37-django-21
+#  - TOXENV=py37-django-22
+#  - TOXENV=py37-django-master
 matrix:
   fast_finish: true
   allow_failures:
