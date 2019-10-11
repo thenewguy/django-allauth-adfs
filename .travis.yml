@@ -36,6 +36,6 @@ matrix:
     - env: TOXENV=py36-django-master
     - env: TOXENV=py37-django-master
 install:
-    - pip install tox
+    - sudo pip install tox
 script:
   - tox
