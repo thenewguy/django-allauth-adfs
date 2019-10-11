@@ -92,4 +92,5 @@ setup(
         'Operating System :: OS Independent',
         'Framework :: Django',
     ],
+    zip_safe = False,
 )
