@@ -26,14 +26,13 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         You can use this hook to intervene, e.g. redirect to an
         educational flow by raising an ImmediateHttpResponse.
         """
-        logger.error("\n\n".join(
+        logger.error("\n\n".join([
             "Error with request: %(request)r",
             "For provider: %(provider_id)s",
             "Error: %(error)s",
             "Exception: %(exception)r",
             "Extra context: %(extra_context)s",
-
-        ) % {
+        ]) % {
             "request": request,
             "provider_id": provider_id,
             "error": error,
