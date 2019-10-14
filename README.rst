@@ -75,3 +75,19 @@ TOX_WORK_DIR=/tmp tox -vv
 -- or test one environment and skip the coverage report --
 
 SUPPRESS_COVERAGE_REPORT="--suppress-coverage-report" TOX_WORK_DIR="/tmp" tox -vv -e py36-django-20
+
+
+============
+create release (windows)
+============
+
+** increment version number since last release **
+
+cd path/to/setup.py
+
+# remove old dist files
+del /P dist
+
+python setup.py sdist bdist_wheel
+
+twine upload dist/*
