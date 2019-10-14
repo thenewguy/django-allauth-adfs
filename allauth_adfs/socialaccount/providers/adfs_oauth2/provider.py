@@ -52,7 +52,8 @@ class ADFSOAuth2Provider(OAuth2Provider):
     def extract_email_addresses(self, data):
         app = self.get_app(self.request)
         email_addresses = self.get_settings().get("extract_email_addresses_handler", default_extract_email_addresses_handler)(data, app)
-        log('email addresses', email_addresses)
+        # manual string conversion required due to https://github.com/pennersr/django-allauth/issues/2373
+        log('email addresses', [e.email for e in email_addresses])
         return email_addresses
 
 provider_classes = [ADFSOAuth2Provider]
