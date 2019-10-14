@@ -15,6 +15,13 @@ django-allauth-adfs
     :target: http://badge.fury.io/py/django-allauth-adfs
 
 ============
+NOTE
+============
+With ADFS 4, the Social App secret must be blank.  Earlier versions ignore when the client sends the unused secret key,
+but version 4 throws an error even though it isn't used in the auth process.  This must currently be forced via the manage.py shell
+until the following issue is fixed: https://github.com/pennersr/django-allauth/issues/2372
+
+============
 installation
 ============
 
@@ -67,4 +74,4 @@ TOX_WORK_DIR=/tmp tox -vv
 
 -- or test one environment and skip the coverage report --
 
-SUPPRESS_COVERAGE_REPORT="--suppress-coverage-report" TOX_WORK_DIR="/tmp" tox -vv -e py36-django-20 
+SUPPRESS_COVERAGE_REPORT="--suppress-coverage-report" TOX_WORK_DIR="/tmp" tox -vv -e py36-django-20

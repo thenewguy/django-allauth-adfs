@@ -1,28 +1,46 @@
-language: python
+language: generic
 addons:
   apt:
     sources:
       - deadsnakes
     packages:
+      - python2.7
+      - python2.7-dev
+      - python3.4
+      - python3.4-dev
       - python3.5
+      - python3.5-dev
       - python3.6
+      - python3.6-dev
+      - python3.7
+      - python3.7-dev
 env:
   - TOXENV=py27-django-111
   - TOXENV=py34-django-111
   - TOXENV=py34-django-20
   - TOXENV=py35-django-111
   - TOXENV=py35-django-20
+  - TOXENV=py35-django-21
+  - TOXENV=py35-django-22
   - TOXENV=py35-django-master
   - TOXENV=py36-django-111
   - TOXENV=py36-django-20
+  - TOXENV=py36-django-21
+  - TOXENV=py36-django-22
   - TOXENV=py36-django-master
+  - TOXENV=py37-django-111
+  - TOXENV=py37-django-20
+  - TOXENV=py37-django-21
+  - TOXENV=py37-django-22
+  - TOXENV=py37-django-master
 matrix:
   fast_finish: true
   allow_failures:
     - env: TOXENV=py34-django-master
     - env: TOXENV=py35-django-master
     - env: TOXENV=py36-django-master
+    - env: TOXENV=py37-django-master
 install:
-    - pip install tox
+    - sudo pip install tox
 script:
   - tox
