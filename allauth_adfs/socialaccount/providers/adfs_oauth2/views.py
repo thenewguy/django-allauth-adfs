@@ -60,6 +60,17 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
         # fall back to pulling the host from settings for backwards compatibility
         return self.get_provider().get_app(self.request).key.strip() or self.get_setting("host")
 
+    @property
+    def resource(self):
+        value = self.get_provider().get_resource(self.request)
+        if not value:
+            auth_params = self.get_setting("AUTH_PARAMS")
+            try:
+                value = auth_params["resource"]
+            except KeyError:
+                raise ImproperlyConfigured("ADFS OAuth2 AUTH_PARAMS setting 'resource' must be specified.")
+        return value
+
     def construct_adfs_url(self, path):
         parts = (
             "https",
@@ -137,12 +148,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
 
             kwargs = {"verify": verify_token}
 
-            auth_params = self.get_setting("AUTH_PARAMS")
-
-            try:
-                kwargs["audience"] = "microsoft:identityserver:%s" % auth_params["resource"]
-            except KeyError:
-                raise ImproperlyConfigured("ADFS OAuth2 AUTH_PARAMS setting 'resource' must be specified.")
+            kwargs["audience"] = "microsoft:identityserver:%s" % self.resource
 
             kwargs["leeway"] = self.get_setting("time_validation_leeway", 0, required=False)
 

@@ -25,8 +25,15 @@ class ADFSOAuth2Provider(OAuth2Provider):
     package = 'allauth_adfs.socialaccount.providers.adfs_oauth2'
     account_class = ADFSOAuth2Account
 
+    def get_resource(self, request):
+        site = self.get_app(request).sites.first()
+        return site.domain if site else ''
+
     def get_auth_params(self, request, action):
         params = super(ADFSOAuth2Provider, self).get_auth_params(request, action)
+        resource = self.get_resource(request)
+        if resource:
+            params['resource'] = resource
         if "resource" not in params:
             raise ImproperlyConfigured("'resource' must be supplied as a key of the AUTH_PARAMS dict under adfs_oauth2 in the SOCIALACCOUNT_PROVIDERS setting.")
         return params
