@@ -57,7 +57,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
         """
             e.g. sso.internal.example.com or sso.example.com:8443
         """
-        return self.get_setting("host")
+        return self.get_provider().get_app(self.request).key
 
     def construct_adfs_url(self, path):
         parts = (
