@@ -26,8 +26,7 @@ class ADFSOAuth2Provider(OAuth2Provider):
     account_class = ADFSOAuth2Account
 
     def get_resource(self, request):
-        site = self.get_app(request).sites.first()
-        return site.domain if site else ''
+        return request.build_absolute_uri('/')
 
     def get_auth_params(self, request, action):
         params = super(ADFSOAuth2Provider, self).get_auth_params(request, action)
