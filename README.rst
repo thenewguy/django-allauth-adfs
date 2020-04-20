@@ -15,6 +15,14 @@ django-allauth-adfs
     :target: http://badge.fury.io/py/django-allauth-adfs
 
 ============
+CONFIGURATION
+============
+
+Social Application
+    - key: should be the ADFS host (i.e. adfs.example.com)
+
+
+============
 NOTE
 ============
 With ADFS 4, the Social App secret must be blank.  Earlier versions ignore when the client sends the unused secret key,
