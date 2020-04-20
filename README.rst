@@ -19,6 +19,7 @@ CONFIGURATION
 ============
 
 Social Application
+    - secret: should be blank (not used by ADFS)
     - key: should be the ADFS host (i.e. adfs.example.com)
 
 
