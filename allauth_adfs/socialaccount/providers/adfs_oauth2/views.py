@@ -154,7 +154,11 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
 
             kwargs["key"] = self.token_signature_key
 
-            payload = jwt.decode(token.token, **kwargs)
+            try:
+                payload = jwt.decode(token.token, **kwargs)
+            except jwt.exceptions.InvalidAudienceError:
+                logger.exception("Audience '%s' was invalid for token!", kwargs["audience"])
+                raise
 
         else:
             encoded_data = parse_token_payload_segment(token.token)
