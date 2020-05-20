@@ -161,7 +161,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
                 debugging_kwargs = deepcopy(kwargs)
                 debugging_kwargs['verify'] = False
                 try:
-                    invalid_payload = jwt.decode(encoded, **debugging_kwargs)
+                    invalid_payload = jwt.decode(token.token, **debugging_kwargs)
                 except:
                     invalid_payload = 'Failed to decode for inspection.'
                     logger.exception("Unable to decode token from %s for inspection!", self.host)
