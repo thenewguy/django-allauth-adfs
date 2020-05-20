@@ -166,7 +166,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
                     invalid_payload = 'Failed to decode for inspection.'
                     logger.exception("Unable to decode token from %s for inspection!", self.host)
                 logger.exception(
-                    "Invalid token encountered from %s. We expected an audience value of '%s' and allowed for %s seconds of clock drift. The token data is displayed for debugging purposes and must not otherwise be trusted:\n%s",
+                    "Invalid token encountered from %s. We expected an audience value of '%s' and allowed for %s seconds of clock drift. The token data is displayed for debugging purposes and must not otherwise be trusted: %s",
                     self.host,
                     kwargs["audience"],
                     kwargs["leeway"],
