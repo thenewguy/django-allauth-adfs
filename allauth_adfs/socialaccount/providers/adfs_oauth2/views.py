@@ -1,5 +1,6 @@
 import logging
 import json
+from copy import deepcopy
 
 from allauth.socialaccount.providers.oauth2.views import (OAuth2Adapter,
                                                           OAuth2LoginView,
@@ -156,8 +157,15 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
 
             try:
                 payload = jwt.decode(token.token, **kwargs)
-            except jwt.exceptions.InvalidAudienceError:
-                logger.exception("Audience '%s' was invalid for token!", kwargs["audience"])
+            except jwt.exceptions.InvalidTokenError:
+                debugging_kwargs = deepcopy(kwargs)
+                debugging_kwargs['verify'] = False
+                try:
+                    invalid_payload = jwt.decode(encoded, **debugging_kwargs)
+                except:
+                    invalid_payload = 'Failed to decode for inspection.'
+                    logger.exception("Unable to decode token from %s for inspection!", self.host)
+                logger.exception("Invalid token encountered from %s. It is only displayed for debugging purposes and must not otherwise be trusted:\n%s", self.host, invalid_payload)
                 raise
 
         else:
