@@ -149,7 +149,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
 
             kwargs = {"verify": verify_token}
 
-            kwargs["audience"] = "microsoft:identityserver:%s" % self.resource
+            kwargs["audience"] = ["microsoft:identityserver:%s" % self.resource, self.resource]
 
             kwargs["leeway"] = self.get_setting("time_validation_leeway", 0, required=False)
 
