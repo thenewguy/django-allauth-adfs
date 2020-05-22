@@ -6,7 +6,7 @@ from allauth.socialaccount.providers.oauth2.views import (OAuth2Adapter,
                                                           OAuth2LoginView,
                                                           OAuth2CallbackView)
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.six import string_types
+from six import string_types
 from django.utils.encoding import force_bytes
 from .provider import ADFSOAuth2Provider
 from .utils import decode_payload_segment, parse_token_payload_segment
