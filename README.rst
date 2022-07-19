@@ -18,8 +18,7 @@ django-allauth-adfs
 NOTE
 ============
 With ADFS 4, the Social App secret must be blank.  Earlier versions ignore when the client sends the unused secret key,
-but version 4 throws an error even though it isn't used in the auth process.  This must currently be forced via the manage.py shell
-until the following issue is fixed: https://github.com/pennersr/django-allauth/issues/2372
+but version 4 throws an error even though it isn't used in the auth process.
 
 ============
 installation
