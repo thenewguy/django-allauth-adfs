@@ -37,6 +37,8 @@ else:
 
 from .compat import caches, DEFAULT_CACHE_ALIAS
 
+# Update this if/when the key information stored in the cache changes shape/etc.
+CACHE_VALUE_FORMAT_VERSION = "v1"
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +111,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
         cache_key = ":".join([
             "allauth_adfs",
             "ADFSOAuth2Adapter",
+            CACHE_VALUE_FORMAT_VERSION,
             md5(hashable_url).hexdigest(),
             "token_signature_key",
         ])
