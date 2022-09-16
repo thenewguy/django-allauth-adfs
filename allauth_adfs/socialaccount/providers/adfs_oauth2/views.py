@@ -25,8 +25,15 @@ try:
     from cryptography.hazmat.primitives import serialization
 except ImportError:
     JWT_AVAILABLE = False
+    JWT_ALGORITHM_REQUIRED = False
 else:
     JWT_AVAILABLE = True
+    # starting with jwt v2.x, a list of allowed algorithms is required
+    try:
+        jwt_version = [int(x) for x in jwt.__version__.split(".")]
+        JWT_ALGORITHM_REQUIRED = jwt_version[0] >= 2
+    except:
+        JWT_ALGORITHM_REQUIRED = False
 
 from .compat import caches, DEFAULT_CACHE_ALIAS
 
@@ -95,7 +102,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
         return xml
 
     @property
-    def token_signature_key(self):
+    def token_signature(self):
         cache_alias = self.get_setting("token_signature_key_cache_alias", DEFAULT_CACHE_ALIAS)
         cache = caches[cache_alias]
         hashable_url = force_bytes(self.federation_metadata_url)
@@ -103,15 +110,27 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
             "allauth_adfs",
             "ADFSOAuth2Adapter",
             md5(hashable_url).hexdigest(),
-            "token_signature_key",
+            "token_signature",
         ])
 
-        pub = cache.get(cache_key)
+        sig_info = cache.get(cache_key)
 
-        if pub is None:
+        if sig_info is None:
             xml = self.federation_metadata_xml
 
             signature = xml.getElementsByTagName("ds:Signature")[0]
+            algorithm = None
+            try:
+                sig_method_algorithm = signature.getElementsByTagName("ds:SignedInfo")[0] \
+                    .getElementsByTagName("ds:SignatureMethod")[0] \
+                    .getAttribute("Algorithm")
+                if sig_method_algorithm == "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256":
+                    algorithm = "RS256"
+                elif JWT_ALGORITHM_REQUIRED:
+                    raise ImproperlyConfigured(f"Signature algorithm required, but found unknown/unsupported signature algorithm = {sig_method_algorithm}")
+            except:
+                if JWT_ALGORITHM_REQUIRED:
+                    raise ImproperlyConfigured("Signature algorithm required but not found in metadata xml")
             cert_b64 = signature.getElementsByTagName("X509Certificate")[0].firstChild.nodeValue
 
             cert_str = decode_payload_segment(cert_b64)
@@ -121,11 +140,21 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PublicFormat.SubjectPublicKeyInfo,
             )
+            
+            sig_info = {"pub": pub, "algorithm": algorithm}
 
             timeout = self.get_setting("token_signature_key_cache_timeout", 0, required=False)
-            cache.set(cache_key, pub, timeout)
+            cache.set(cache_key, sig_info, timeout)
 
-        return pub
+        return sig_info
+
+    @property
+    def token_signature_key(self):
+        return self.token_signature["pub"]
+
+    @property
+    def token_signature_algorithm(self):
+        return self.token_signature["algorithm"]
 
     def complete_login(self, request, app, token, **kwargs):
         verify_token = self.get_setting("verify_token", True, required=False)
@@ -147,6 +176,9 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
 
             kwargs["key"] = self.token_signature_key
 
+            if JWT_ALGORITHM_REQUIRED:
+                kwargs["algorithms"] = [self.token_signature_algorithm]
+            
             payload = jwt.decode(token.token, **kwargs)
 
         else:
