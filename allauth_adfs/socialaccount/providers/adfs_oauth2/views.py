@@ -103,7 +103,10 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
 
     @property
     def token_signature(self):
-        cache_alias = self.get_setting("token_signature_key_cache_alias", DEFAULT_CACHE_ALIAS)
+        cache_alias = self.get_setting(
+            "token_signature_cache_alias",
+            default=self.get_setting("token_signature_key_cache_alias", DEFAULT_CACHE_ALIAS),
+        )
         cache = caches[cache_alias]
         hashable_url = force_bytes(self.federation_metadata_url)
         cache_key = ":".join([
@@ -143,7 +146,11 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
             
             sig_info = {"pub": pub, "algorithm": algorithm}
 
-            timeout = self.get_setting("token_signature_key_cache_timeout", 0, required=False)
+            timeout = self.get_setting(
+                "token_signature_cache_timeout",
+                default=self.get_setting("token_signature_key_cache_timeout", 0, required=False),
+                required=False
+            )
             cache.set(cache_key, sig_info, timeout)
 
         return sig_info
