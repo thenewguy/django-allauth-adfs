@@ -130,7 +130,7 @@ class ADFSOAuth2Adapter(OAuth2Adapter):
                 if sig_method_algorithm == "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256":
                     algorithm = "RS256"
                 elif JWT_ALGORITHM_REQUIRED:
-                    raise ImproperlyConfigured(f"Signature algorithm required, but found unknown/unsupported signature algorithm = {sig_method_algorithm}")
+                    raise ImproperlyConfigured("Signature algorithm required, but found unknown/unsupported signature algorithm = %s" % sig_method_algorithm)
             except:
                 if JWT_ALGORITHM_REQUIRED:
                     raise ImproperlyConfigured("Signature algorithm required but not found in metadata xml")
